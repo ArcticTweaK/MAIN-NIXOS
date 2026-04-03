@@ -12,14 +12,21 @@
 
     # Nix User Repository — extra packages not in nixpkgs
     nur.url = "github:nix-community/NUR";
+
+    # OpenClaw — AI agent gateway
+    nix-openclaw = {
+      url = "github:openclaw/nix-openclaw";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
-  outputs = { self, nixpkgs, home-manager, nur, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, nur, nix-openclaw, ... }@inputs: {
     nixosConfigurations.arctic = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
-        { nixpkgs.overlays = [ nur.overlays.default ]; }
+        { nixpkgs.overlays = [ nur.overlays.default nix-openclaw.overlays.default ]; }
         ./hosts/nixos/configuration.nix
         ./modules/gaming
         ./modules/networking
@@ -27,9 +34,10 @@
         ./modules/misc
         ./modules/security
         home-manager.nixosModules.home-manager {
-          home-manager.useGlobalPkgs = true;
+          home-manager.useGlobalPkgs   = true;
           home-manager.useUserPackages = true;
-          home-manager.users.arctic = import ./home/arctic.nix;
+          home-manager.users.arctic    = import ./home/arctic.nix;
+          home-manager.sharedModules   = [ nix-openclaw.homeManagerModules.openclaw ];
         }
       ];
     };

@@ -9,28 +9,35 @@
   # ─── NETWORKMANAGER ──────────────────────────────────────────────────────────
   networking.networkmanager = {
     enable = true;
-    # Use systemd-resolved for DNS (enables DoT below)
     dns = "systemd-resolved";
-    # Stable MAC per network — prevents tracking across APs while keeping
-    # a consistent identity per-network (better than random for reconnects)
     wifi.macAddress = "stable";
     ethernet.macAddress = "stable";
+    # Ignore DNS pushed by DHCP (e.g. your router's 192.168.1.1) — ensures
+    # all DNS goes through resolved/Quad9 only, never your ISP via router
+    settings."global-dns-domain-*".servers = "9.9.9.9,149.112.112.112";
   };
 
   # ─── DNS-OVER-TLS (systemd-resolved) ─────────────────────────────────────────
   # Encrypts DNS queries — prevents ISP/network snooping on hostnames
   services.resolved = {
     enable = true;
+    llmnr  = "false";
     settings.Resolve = {
-      DNSSEC      = "true";          # Validate DNS responses are authentic
-      DNSOverTLS  = "opportunistic"; # Encrypt DNS when server supports it
-      FallbackDNS = [
-        #"9.9.9.9#dns.quad9.net"          # Quad9 — blocks malicious domains
-        #"149.112.112.112#dns.quad9.net"  # Quad9 secondary
-        #"1.1.1.1#cloudflare-dns.com"     # Cloudflare — fast, privacy-focused
-      ];
+      # Primary DNS — Quad9 with DoT hostname for certificate validation
+      DNS        = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
+      DNSSEC     = "true";          # Validate DNS responses are authentic
+      DNSOverTLS = "opportunistic"; # Encrypt DNS when server supports it
+      FallbackDNS = "";             # Empty — no silent fallback to cleartext DNS
+      #"1.1.1.1#cloudflare-dns.com"     # Cloudflare — fast, privacy-focused (alt option)
     };
   };
+
+  # Pin /etc/resolv.conf to the systemd-resolved stub resolver.
+  # Without this, the symlink goes stale or missing on every reboot,
+  # breaking DNS until you manually run: sudo unlink /etc/resolv.conf && echo "nameserver 9.9.9.9" | sudo tee /etc/resolv.conf
+  # This makes NixOS declaratively own the file on every activation — no more manual fix.
+  networking.resolvconf.enable = false;   # Don't let resolvconf fight resolved
+  environment.etc."resolv.conf".source = "/run/systemd/resolve/stub-resolv.conf";
 
   # ─── HTTP/HTTPS PROXY ────────────────────────────────────────────────────────
   # System-wide proxy env vars — respected by curl, httpie, most CLI tools,

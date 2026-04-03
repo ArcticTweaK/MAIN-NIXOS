@@ -20,12 +20,20 @@
       cd   = "z";
     };
     interactiveShellInit = ''
-    zoxide init fish | source
-    set fish_greeting ""
-    bind \cl 'clear; commandline -f repaint'
-    # Stop commands from opening a pager
-    set -x PAGER cat
-  '';
+      zoxide init fish | source
+      set fish_greeting ""
+      bind \cl 'clear; commandline -f repaint'
+      # Stop commands from opening a pager
+      set -x PAGER cat
+      fish_add_path $HOME/.npm-global/bin
+
+      # Load openclaw secrets into environment
+      if test -f ~/.secrets/openclaw
+        while read -l line
+          set -gx (string split -m1 = $line)[1] (string split -m1 = $line)[2]
+        end < ~/.secrets/openclaw
+      end
+    '';
   };
 
   # ─── STARSHIP PROMPT ─────────────────────────────────────────────────────────
@@ -35,12 +43,12 @@
     settings = {
       format = "$username$hostname$directory$git_branch$git_status$nix_shell$cmd_duration$line_break$character";
       username = {
-        show_always = true;          # Always show username
+        show_always = true;
         format      = "[$user]($style)@";
         style_user  = "bold cyan";
       };
       hostname = {
-        ssh_only = false;            # Always show hostname
+        ssh_only = false;
         format   = "[$hostname]($style) ";
         style    = "bold green";
       };
@@ -145,7 +153,7 @@
 
       # ── Tokyo Night — True Black background ───────────────────────────────────
       foreground           = "#c0caf5";
-      background           = "#1a1b26";   # TRUE BLACK = #000000
+      background           = "#1a1b26";
       selection_foreground = "#c0caf5";
       selection_background = "#33467c";
 
@@ -186,7 +194,7 @@
 
       # ── Window ───────────────────────────────────────────────────────────────
       window_padding_width    = 8;
-      hide_window_decorations = "yes";
+      hide_window_decorations = "no";
       confirm_os_window_close = 0;
 
       # ── Tabs ─────────────────────────────────────────────────────────────────
@@ -246,9 +254,9 @@
       "ctrl+shift+left"  = "previous_tab";
 
       # Font size
-      "ctrl+shift+scroll_up" = "change_font_size all +1.0";
+      "ctrl+shift+scroll_up"   = "change_font_size all +1.0";
       "ctrl+shift+scroll_down" = "change_font_size all -1.0";
-      "ctrl+shift+0"     = "change_font_size all 0";
+      "ctrl+shift+0"           = "change_font_size all 0";
 
       # Transparency on the fly
       "ctrl+shift+a>m" = "set_background_opacity +0.1";
@@ -281,6 +289,37 @@
     mpv
     yt-dlp
   ];
+
+  # ─── OPENCLAW ────────────────────────────────────────────────────────────────
+    # Secrets are loaded from ~/.secrets/openclaw via fish shell above.
+    # That file should contain:
+    #   OPENROUTER_API_KEY=sk-or-XXXX
+    #   DISCORD_BOT_TOKEN=your_token_here
+    programs.openclaw = {
+      enable = true;
+
+      instances.default = {
+        enable = true;
+
+        config = {
+          gateway.mode = "local";
+          gateway.bind = "loopback";
+
+          agents.defaults = {
+            model = {
+              primary   = "openrouter/deepseek/deepseek-chat-v3-0324";
+              fallbacks = [ "openrouter/anthropic/claude-sonnet-4-6:thinking" ];
+            };
+          };
+
+          channels.discord = {
+            enabled    = true;
+            dmPolicy  = "allowlist";
+            allowFrom = [ "664539716854480960" ];
+          };
+        };
+      };
+    };
 
   programs.home-manager.enable = true;
 }

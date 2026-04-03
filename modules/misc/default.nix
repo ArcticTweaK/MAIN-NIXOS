@@ -42,9 +42,9 @@
     rsync                   # Fast file sync / backup
 
     # Browsers
-    brave                   # Privacy-first Chromium
+    brave
     google-chrome
-
+    firefox
     # Dev tools
     vscode                  # Code editor
 
@@ -87,6 +87,7 @@
     signal-cli              # Signal messenger CLI
     antigravity             # Googles IDE for AI Integration
     ollama                  # Local AI Models
+    gnumake                 # default make .file
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────

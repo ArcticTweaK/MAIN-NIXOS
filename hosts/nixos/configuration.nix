@@ -1,5 +1,11 @@
 { config, pkgs, ... }:
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  NIXOS SYSTEM — arctic (x86_64-linux)
+#  Core: boot, user, kernel hardening, packages, virtualisation.
+#  Desktop/gaming/networking/security live in their own modules.
+# ─────────────────────────────────────────────────────────────────────────────
+
 {
   imports = [
     ./hardware-configuration.nix
