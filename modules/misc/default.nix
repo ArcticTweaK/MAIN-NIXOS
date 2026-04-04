@@ -84,6 +84,7 @@
 
     # Misc
     qbittorrent             # BitTorrent client
+    popcorntime             # Stream Movies & TV Shows from torrents
     signal-cli              # Signal messenger CLI
     antigravity             # Googles IDE for AI Integration
     ollama                  # Local AI Models
