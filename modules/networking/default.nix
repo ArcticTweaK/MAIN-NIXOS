@@ -21,8 +21,8 @@
   # Encrypts DNS queries — prevents ISP/network snooping on hostnames
   services.resolved = {
     enable = true;
-    llmnr  = "false";
     settings.Resolve = {
+      LLMNR      = "false";
       # Primary DNS — Quad9 with DoT hostname for certificate validation
       DNS        = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
       DNSSEC     = "true";          # Validate DNS responses are authentic

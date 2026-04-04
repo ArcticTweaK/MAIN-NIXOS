@@ -26,13 +26,6 @@
       # Stop commands from opening a pager
       set -x PAGER cat
       fish_add_path $HOME/.npm-global/bin
-
-      # Load openclaw secrets into environment
-      if test -f ~/.secrets/openclaw
-        while read -l line
-          set -gx (string split -m1 = $line)[1] (string split -m1 = $line)[2]
-        end < ~/.secrets/openclaw
-      end
     '';
   };
 
@@ -289,37 +282,6 @@
     mpv
     yt-dlp
   ];
-
-  # ─── OPENCLAW ────────────────────────────────────────────────────────────────
-    # Secrets are loaded from ~/.secrets/openclaw via fish shell above.
-    # That file should contain:
-    #   OPENROUTER_API_KEY=sk-or-XXXX
-    #   DISCORD_BOT_TOKEN=your_token_here
-    programs.openclaw = {
-      enable = true;
-
-      instances.default = {
-        enable = true;
-
-        config = {
-          gateway.mode = "local";
-          gateway.bind = "loopback";
-
-          agents.defaults = {
-            model = {
-              primary   = "openrouter/deepseek/deepseek-chat-v3-0324";
-              fallbacks = [ "openrouter/anthropic/claude-sonnet-4-6:thinking" ];
-            };
-          };
-
-          channels.discord = {
-            enabled    = true;
-            dmPolicy  = "allowlist";
-            allowFrom = [ "664539716854480960" ];
-          };
-        };
-      };
-    };
 
   programs.home-manager.enable = true;
 }

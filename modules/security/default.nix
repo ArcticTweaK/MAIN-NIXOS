@@ -133,6 +133,7 @@
 
     # Certificate tools
     openssl      # TLS cert inspection and generation
+    burpsuite    # GUI web security testing
   ];
 
   # ─── GPG AGENT ───────────────────────────────────────────────────────────────
