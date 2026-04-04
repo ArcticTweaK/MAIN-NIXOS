@@ -97,6 +97,10 @@
   # ─── GLOBAL PACKAGES ─────────────────────────────────────────────────────────
   nixpkgs.config.allowUnfree = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+  "olm-3.2.16"
+  ];
+
   environment.systemPackages = with pkgs; [
     # Dev essentials
     git
@@ -189,5 +193,31 @@
     };
   };
 
+
+  # ─── OPENCLAW ────────────────────────────────────────────────────────────────
+  systemd.user.services.openclaw-gateway = {
+    description = "OpenClaw Gateway";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      ExecStart = "/home/arctic/.npm-global/bin/openclaw gateway run";
+      Restart = "on-failure";
+      RestartSec = "5s";
+      WorkingDirectory = "/home/arctic/.openclaw";
+      Environment = [
+        "HOME=/home/arctic"
+        "OPENCLAW_STATE_DIR=/home/arctic/.openclaw"
+        "OPENCLAW_CONFIG_PATH=/home/arctic/.openclaw/openclaw.json"
+        "PATH=/home/arctic/.npm-global/bin:/run/current-system/sw/bin"
+      ];
+      StandardOutput = "append:/tmp/openclaw/openclaw-gateway.log";
+      StandardError = "append:/tmp/openclaw/openclaw-gateway.log";
+    };
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /tmp/openclaw 0755 arctic arctic -"
+  ];
   system.stateVersion = "24.11";
 }

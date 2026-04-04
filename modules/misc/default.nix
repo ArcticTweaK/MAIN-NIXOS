@@ -50,7 +50,8 @@
 
     # Communication
     vesktop                 # Discord with Vencord (better privacy, plugins)
-
+    quaternion                # Matrix client
+    
     # Security / privacy — core tools live in security/default.nix
     tor-browser             # Tor Browser (GUI — separate from tor daemon in networking)
 
