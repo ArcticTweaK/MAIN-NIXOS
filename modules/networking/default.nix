@@ -3,7 +3,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  NETWORKING MODULE
 #  Firewall, DNS-over-TLS, VPN tooling, network hardening.
-#  NOTE: Firewall is now handled by nftables in hosts/nixos/entropy-user.nix
 # ─────────────────────────────────────────────────────────────────────────────
 
 {
@@ -20,10 +19,10 @@
   services.resolved = {
     enable = true;
     settings.Resolve = {
-      LLMNR      = "false";
-      DNS        = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
-      DNSSEC     = "true";
-      DNSOverTLS = "opportunistic";
+      LLMNR       = "false";
+      DNS         = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
+      DNSSEC      = "true";
+      DNSOverTLS  = "opportunistic";
       FallbackDNS = "";
     };
   };
@@ -40,10 +39,18 @@
   };
 
   # ─── FIREWALL ────────────────────────────────────────────────────────────────
-  # Replaced by nftables ruleset in hosts/nixos/entropy-user.nix
-  # That ruleset covers: inbound drop-by-default, Docker bridge,
-  # established/related, and the entropy transparent Tor proxy + kill switch.
-  networking.firewall.enable = false;
+  networking.firewall = {
+    enable                = true;
+    allowedTCPPorts       = [];
+    allowedUDPPorts       = [];
+    logRefusedConnections = true;
+    logRefusedPackets     = false;
+    rejectPackets         = false;
+    extraCommands         = ''
+      iptables -I INPUT -i docker0 -j ACCEPT
+      iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    '';
+  };
 
   # ─── TOR ─────────────────────────────────────────────────────────────────────
   services.tor = {
@@ -52,45 +59,30 @@
     settings = {
       DNSPort     = 9053;
       StrictNodes = false;
-      # TransPort for entropy's transparent proxy (nftables redirects UID traffic here)
       TransPort   = 9040;
-      #SocksListenAddress = "127.0.0.1";
-      #SocksPort   = "127.0.0.1:9050";
     };
   };
 
   # ─── NETWORK TOOLS ───────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    # ── Traffic Analysis ──────────────────────────────────────────────────────
     wireshark
     tshark
     tcpdump
     nmap
     netcat-openbsd
-
-    # ── DNS Tools ────────────────────────────────────────────────────────────
     dig
     dog
     dnsx
-
-    # ── VPN / Tunneling ───────────────────────────────────────────────────────
     wireguard-tools
     openvpn
     protonvpn-gui
-
-    # ── Traffic Routing & Proxying ────────────────────────────────────────────
     proxychains-ng
     tor
-
-    # ── HTTP / API Inspection ─────────────────────────────────────────────────
     httpie
     curl
-
-    # ── Monitoring ───────────────────────────────────────────────────────────
     nethogs
     iftop
     iproute2
-
     cli-tips
     zenmap
   ];
