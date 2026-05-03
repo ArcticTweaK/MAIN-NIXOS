@@ -90,9 +90,17 @@
     antigravity             # Googles IDE for AI Integration
     ollama                  # Local AI Models
     gnumake                 # default make .file
+    hardinfo2               # 
+    pixieditor              #
+    godot                   #
+    dotnet-sdk_10
+    protontricks
+    ydotool
+    crossmacro
+    sweethome3d
   ];
 
-  # ─── PROGRAMS ────────────────────────────────────────────────────────────────
+  # ─── PROGRAMS ────────────────────────────────────────────────────────────────\
   programs.fish = {
     enable = true;
   };
@@ -103,7 +111,7 @@
     vimAlias      = true;
     viAlias       = true;
   };
-
+  
   # ─── SERVICES ────────────────────────────────────────────────────────────────
   services.timesyncd.enable = true;   # NTP — keep clock accurate for certs, logs, TOTP
 }

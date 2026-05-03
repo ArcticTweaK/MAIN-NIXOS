@@ -70,6 +70,7 @@
       "networkmanager" "wheel" "video"
       "libvirtd" "kvm" "docker" "wireshark" "tor"
       "dialout" "i2c" "input" "render" "storage" "audio"
+      "ydotool"
     ];
     # FIX: Must match home-manager shell (fish), not bash.
     # home-manager sets fish as the interactive shell but the login shell

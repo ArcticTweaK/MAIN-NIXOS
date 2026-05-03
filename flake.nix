@@ -19,7 +19,6 @@
       modules = [
         { nixpkgs.overlays = [ nur.overlays.default ]; }
         ./hosts/nixos/configuration.nix
-        ./hosts/nixos/entropy-user.nix        # ADD
         ./modules/gaming
         ./modules/networking
         ./modules/desktop
@@ -29,7 +28,6 @@
           home-manager.useGlobalPkgs        = true;
           home-manager.useUserPackages      = true;
           home-manager.users.arctic         = import ./home/arctic.nix;
-          home-manager.users.entropy        = import ./home/entropy.nix;  # ADD
           home-manager.backupFileExtension  = "hm-backup";
         }
       ];

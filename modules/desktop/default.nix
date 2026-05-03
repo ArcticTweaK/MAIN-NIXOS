@@ -76,5 +76,7 @@
 
     # Productivity
     obsidian      # Note-taking
+    crossmacro    # A Linux Macro
+    sweethome3d.application   # A Home Designer 3D & 2D  | Linux Supported
   ];
 }
