@@ -46,10 +46,6 @@
   };
 
   # ─── MINECRAFT (Modded) ──────────────────────────────────────────────────────
-  # PrismLauncher supports Modrinth, CurseForge, and custom instances
-  # Java versions for different MC versions:
-  #   MC ≥ 1.17  → Java 17+
-  #   MC ≥ 1.20.5 → Java 21
   environment.systemPackages = with pkgs; [
     prismlauncher   # Best modded Minecraft launcher on Linux
 
@@ -69,9 +65,6 @@
     vulkan-tools
     dxvk            # NEW: DirectX → Vulkan translation layer (used by Proton/Wine)
 
-    # Roblox — best approach on Linux is via Sober (Flatpak) or Wine
-    # Sober is a native port runtime, install via Flatpak:
-    # flatpak install flathub org.vinegarhq.Sober
     # (Listed here as a reminder — handled by flatpak in desktop module)
     wine-wayland    # NEW: Wine with native Wayland rendering
     winetricks      # NEW: Easy Wine prefix setup

@@ -63,6 +63,14 @@
     };
   };
 
+    # ─── BATTLEYE BYPASS (GTA V ONLINE) ──────────────────────────────────────────
+  # This blocks the anti-cheat "call home" to allow Invite-Only sessions.
+  networking.extraHosts = ''
+    0.0.0.0 paradise-s1.battleye.com          # Legacy Edition
+    0.0.0.0 test-s1.battleye.com              # Test Servers
+    0.0.0.0 paradiseenhanced-s1.battleye.com  # Enhanced Edition (2025/2026)
+  '';
+
   # ─── NETWORK TOOLS ───────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     wireshark

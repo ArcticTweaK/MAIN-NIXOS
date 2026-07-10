@@ -78,5 +78,7 @@
     obsidian      # Note-taking
     crossmacro    # A Linux Macro
     sweethome3d.application   # A Home Designer 3D & 2D  | Linux Supported
+    pixieditor              # a pixel editor for game developers
+    godot                   # Game engine (also in gaming — deduped by Nix)
   ];
 }

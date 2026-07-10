@@ -56,7 +56,10 @@
     "hfs" "hfsplus" "udf"
     "firewire-core" "thunderbolt"   # DMA attack vectors
   ];
- 
+  
+  services.udev.extraRules = ''
+  SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", GROUP="plugdev"
+  '';
 
   # ─── LOCALIZATION ────────────────────────────────────────────────────────────
   time.timeZone = "America/New_York";
@@ -70,7 +73,7 @@
       "networkmanager" "wheel" "video"
       "libvirtd" "kvm" "docker" "wireshark" "tor"
       "dialout" "i2c" "input" "render" "storage" "audio"
-      "ydotool"
+      "ydotool" "plugdev"
     ];
     # FIX: Must match home-manager shell (fish), not bash.
     # home-manager sets fish as the interactive shell but the login shell

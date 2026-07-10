@@ -50,6 +50,7 @@
 
     # Communication
     vesktop                 # Discord with Vencord (better privacy, plugins)
+    discord
     quaternion                # Matrix client
     
     # Security / privacy — core tools live in security/default.nix
@@ -91,13 +92,12 @@
     ollama                  # Local AI Models
     gnumake                 # default make .file
     hardinfo2               # 
-    pixieditor              #
-    godot                   #
     dotnet-sdk_10
     protontricks
     ydotool
-    crossmacro
-    sweethome3d
+    tree
+
+    claude-code
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\
@@ -111,6 +111,8 @@
     vimAlias      = true;
     viAlias       = true;
   };
+
+  virtualisation.waydroid.enable = true;
   
   # ─── SERVICES ────────────────────────────────────────────────────────────────
   services.timesyncd.enable = true;   # NTP — keep clock accurate for certs, logs, TOTP
