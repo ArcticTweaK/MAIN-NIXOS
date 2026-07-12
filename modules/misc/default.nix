@@ -96,8 +96,6 @@
     protontricks
     ydotool
     tree
-
-    claude-code
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\

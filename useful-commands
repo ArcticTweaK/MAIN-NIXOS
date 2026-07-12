@@ -2,4 +2,12 @@
 # Use this when your changing dns's or doing dns over tls. (ex: DNS-PROBING)
 resolvectl status | grep -i "dns over tls"ss
 sudo unlink /etc/resolv.conf
-echo "nameserver 9.9.9.9" | sudo tee /etc/resolv.conf
+echo "nameserver 9.9.9.9" | sudo tee /etc/resolv.confgit
+
+
+--> How to Git push from vscode cli to github <--
+
+git add .
+git commit -m "Your commit message"
+git push -u origin main
+git push
