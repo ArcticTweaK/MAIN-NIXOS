@@ -71,7 +71,6 @@
     kdePackages.spectacle
     
     # Media
-    mpv           # Lightweight, powerful video player
     imv           # Lightweight image viewer
 
     # Productivity

@@ -49,8 +49,7 @@
     vscode                  # Code editor
 
     # Communication
-    vesktop                 # Discord with Vencord (better privacy, plugins)
-    discord
+    equibop                 # Custom Discord App aiming to give you better performance and improve linux support (better privacy, plugins)
     quaternion                # Matrix client
     
     # Security / privacy — core tools live in security/default.nix
@@ -58,7 +57,6 @@
 
     # Media & misc
     prismlauncher           # Modded Minecraft (also in gaming — deduped by Nix)
-    vlc                     # Fallback media player
 
     # Python ecosystem
     python3
@@ -87,11 +85,10 @@
     # Misc
     qbittorrent             # BitTorrent client
     popcorntime             # Stream Movies & TV Shows from torrents
-    signal-cli              # Signal messenger CLI
     antigravity             # Googles IDE for AI Integration
     ollama                  # Local AI Models
     gnumake                 # default make .file
-    hardinfo2               # 
+    hardinfo2               
     dotnet-sdk_10
     protontricks
     ydotool
