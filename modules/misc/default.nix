@@ -43,14 +43,14 @@
 
     # Browsers
     brave
-    google-chrome
     firefox
+    tor-browser
+    
     # Dev tools
     vscode                  # Code editor
 
     # Communication
     equibop                 # Custom Discord App aiming to give you better performance and improve linux support (better privacy, plugins)
-    quaternion                # Matrix client
     
     # Security / privacy — core tools live in security/default.nix
     tor-browser             # Tor Browser (GUI — separate from tor daemon in networking)
@@ -85,7 +85,6 @@
     # Misc
     qbittorrent             # BitTorrent client
     popcorntime             # Stream Movies & TV Shows from torrents
-    antigravity             # Googles IDE for AI Integration
     ollama                  # Local AI Models
     gnumake                 # default make .file
     hardinfo2               
