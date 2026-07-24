@@ -66,8 +66,6 @@
     # Terminal
     kitty                   # GPU-accelerated terminal emulator
 
-    # 2FA / identity
-
     # Reverse engineering / forensics (complement to security module)
     ghidra                  # Reverse engineering suite
     imhex                   # Hex editor for binary analysis

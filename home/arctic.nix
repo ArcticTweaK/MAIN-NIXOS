@@ -279,7 +279,6 @@
     jq
     httpie
     just
-    mpv
     yt-dlp
   ];
 

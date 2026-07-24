@@ -125,7 +125,6 @@
 
     # Audit / forensics
     lynis        # NEW: Security audit tool — run `sudo lynis audit system`
-                 #      Gets you a hardening score + specific recommendations
 
     # Metadata stripping (important for OPSEC)
     exiftool     # Read/strip EXIF from images, docs, etc.
