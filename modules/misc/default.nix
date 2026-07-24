@@ -40,23 +40,20 @@
     unzip
     p7zip                   # 7z support
     rsync                   # Fast file sync / backup
+    yazi                    # Blazing fast terminal file manager written in Rust, based on async I/O
 
     # Browsers
     brave
-    firefox
+    librewolf
     tor-browser
     
     # Dev tools
-    vscode                  # Code editor
+    vscodium                # Open-source VSCode build
+    scrcpy                  # Display and control Android devices over USB or TCP/IP
+
 
     # Communication
     equibop                 # Custom Discord App aiming to give you better performance and improve linux support (better privacy, plugins)
-    
-    # Security / privacy — core tools live in security/default.nix
-    tor-browser             # Tor Browser (GUI — separate from tor daemon in networking)
-
-    # Media & misc
-    prismlauncher           # Modded Minecraft (also in gaming — deduped by Nix)
 
     # Python ecosystem
     python3
@@ -70,7 +67,6 @@
     kitty                   # GPU-accelerated terminal emulator
 
     # 2FA / identity
-    #ente-auth               # GUI TOTP/HOTP manager -- not using rn -- on flatpak
 
     # Reverse engineering / forensics (complement to security module)
     ghidra                  # Reverse engineering suite

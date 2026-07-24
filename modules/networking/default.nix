@@ -9,15 +9,34 @@
   # ─── NETWORKMANAGER ──────────────────────────────────────────────────────────
   networking.networkmanager = {
     enable = true;
-    dns = "systemd-resolved";
+    dns = "none"; # was "systemd-resolved" — resolved is disabled now, AdGuard Home handles DNS
     wifi.macAddress = "stable";
     ethernet.macAddress = "stable";
-    settings."global-dns-domain-*".servers = "9.9.9.9,149.112.112.112";
+
+    # ─── STATIC IP FOR ADGUARD HOME (enp4s0) ─────────────────────────────────
+    # Locks 192.168.1.109 so the router's DHCP DNS pointer never breaks.
+    # Confirm 192.168.1.1 is actually your gateway via `ip route | grep default`
+    # before rebuilding — adjust if different.
+    ensureProfiles.profiles = {
+      "enp4s0-static" = {
+        connection = {
+          id = "enp4s0-static";
+          type = "ethernet";
+          interface-name = "enp4s0";
+        };
+        ipv4 = {
+          method = "manual";
+          address1 = "192.168.1.109/24,192.168.1.1";
+          dns = "127.0.0.1;";
+          ignore-auto-dns = true;
+        };
+      };
+    };
   };
 
   # ─── DNS-OVER-TLS (systemd-resolved) ─────────────────────────────────────────
   services.resolved = {
-    enable = true;
+    enable = false; # changed for dealing with AdGuardHome
     settings.Resolve = {
       LLMNR       = "false";
       DNS         = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
@@ -28,7 +47,13 @@
   };
 
   networking.resolvconf.enable = false;
-  environment.etc."resolv.conf".source = "/run/systemd/resolve/stub-resolv.conf";
+
+  # This box resolves through its own AdGuard Home instance now.
+  environment.etc."resolv.conf" = {
+    text = "nameserver 127.0.0.1\n";
+  };
+
+  networking.nameservers = [ "127.0.0.1" ];
 
   # ─── HTTP/HTTPS PROXY ────────────────────────────────────────────────────────
   environment.sessionVariables = {
@@ -62,6 +87,12 @@
       TransPort   = 9040;
     };
   };
+
+# ─── AdGuardHome ───────────────
+  services.adguardhome = {
+  enable = true;
+  openFirewall = true;
+};
 
     # ─── BATTLEYE BYPASS (GTA V ONLINE) ──────────────────────────────────────────
   # This blocks the anti-cheat "call home" to allow Invite-Only sessions.

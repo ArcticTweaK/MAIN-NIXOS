@@ -59,6 +59,7 @@
     lutris          # Universal game launcher (non-Steam)
     heroic          # Epic Games, GOG, Amazon Games
     bottles         # Windows software in isolated bottles
+    prismlauncher   # Minecraft Game Launcher
 
     # Vulkan
     vulkan-loader

@@ -8,6 +8,6 @@ echo "nameserver 9.9.9.9" | sudo tee /etc/resolv.confgit
 --> How to Git push from vscode cli to github <--
 
 git add .
-git commit -m "Your commit message"
+git commit -m "added AdGuardHome configs"
 git push -u origin main
 git push
