@@ -39,6 +39,8 @@
     SDL_VIDEODRIVER         = "wayland";   # Helps some SDL games on Wayland
     __GL_GSYNC_ALLOWED      = "1";   # NEW: Enable G-Sync if your monitor supports it
     __GL_VRR_ALLOWED        = "1";   # NEW: Enable VRR (Variable Refresh Rate)
+    MOZ_DISABLE_RDD_SANDBOX = "1";  # required for VA-API to work in Firefox's sandboxed video process
+    LIBVA_DRIVER_NAME = "nvidia";
   };
 
   # ─── FONTS ───────────────────────────────────────────────────────────────────
@@ -76,5 +78,7 @@
     # Productivity
     obsidian      # Note-taking
     crossmacro    # A Linux Macro
+
+    nvidia-vaapi-driver
   ];
 }

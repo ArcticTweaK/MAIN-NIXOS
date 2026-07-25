@@ -86,6 +86,9 @@
     protontricks
     ydotool
     tree
+    localsend               # Open source cross-platform alternative to AirDrop
+    gimp                    # GNU Image Manipulation Program
+    
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\
