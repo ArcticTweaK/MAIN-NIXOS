@@ -2,25 +2,22 @@
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  NETWORKING MODULE
-#  Firewall, DNS-over-TLS, VPN tooling, network hardening.
+#  Firewall, DNS (AdGuard Home, DoT upstreams), VPN tooling, network hardening.
 # ─────────────────────────────────────────────────────────────────────────────
 
 {
   # ─── NETWORKMANAGER ──────────────────────────────────────────────────────────
   networking.networkmanager = {
     enable = true;
-    dns = "none"; # was "systemd-resolved" — resolved is disabled now, AdGuard Home handles DNS
+    dns = "none"; # AdGuard Home handles all DNS resolution
     wifi.macAddress = "stable";
     ethernet.macAddress = "stable";
 
     # ─── STATIC IP FOR ADGUARD HOME (enp4s0) ─────────────────────────────────
-    # Locks 192.168.1.109 so the router's DHCP DNS pointer never breaks.
-    # Confirm 192.168.1.1 is actually your gateway via `ip route | grep default`
-    # before rebuilding — adjust if different.
     ensureProfiles.profiles = {
       "enp4s0-static" = {
         connection = {
-          id = "enp4s0-static";
+          id = "MAIN Ethernet";
           type = "ethernet";
           interface-name = "enp4s0";
         };
@@ -34,21 +31,9 @@
     };
   };
 
-  # ─── DNS-OVER-TLS (systemd-resolved) ─────────────────────────────────────────
-  services.resolved = {
-    enable = false; # changed for dealing with AdGuardHome
-    settings.Resolve = {
-      LLMNR       = "false";
-      DNS         = "9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net";
-      DNSSEC      = "true";
-      DNSOverTLS  = "opportunistic";
-      FallbackDNS = "";
-    };
-  };
-
   networking.resolvconf.enable = false;
 
-  # This box resolves through its own AdGuard Home instance now.
+  # This box resolves through its own AdGuard Home instance.
   environment.etc."resolv.conf" = {
     text = "nameserver 127.0.0.1\n";
   };
@@ -66,8 +51,16 @@
   # ─── FIREWALL ────────────────────────────────────────────────────────────────
   networking.firewall = {
     enable                = true;
-    allowedTCPPorts       = [];
-    allowedUDPPorts       = [];
+    allowedTCPPorts        = [];
+    allowedUDPPorts        = [];
+
+    # DNS (53) is only reachable via the LAN-facing interface, not globally —
+    # so a future VPN/tun interface never inherits this rule by accident.
+    interfaces."enp4s0" = {
+      allowedTCPPorts = [ 53 ];
+      allowedUDPPorts = [ 53 ];
+    };
+
     logRefusedConnections = true;
     logRefusedPackets     = false;
     rejectPackets         = false;
@@ -88,18 +81,53 @@
     };
   };
 
-# ─── AdGuardHome ───────────────
+  # ─── ADGUARD HOME ────────────────────────────────────────────────────────────
+  # Web UI: loopback-only (http://127.0.0.1:3000), so no firewall hole is needed for it.
+  # DNS: bind_hosts = 0.0.0.0 — binds on every interface present at start time
+  # instead of pinning the static LAN IP directly. Pinning 192.168.1.109 caused
+  # a "bind: cannot assign requested address" failure at boot even with the
+  # address confirmed present — 0.0.0.0 sidesteps whatever that was. Still only
+  # reachable from your actual LAN (192.168.1.109:53), not the whole internet.
   services.adguardhome = {
-  enable = true;
-  openFirewall = true;
-};
+    enable  = true;
+    host    = "127.0.0.1";
+    port    = 3000;
+    openFirewall    = false; # UI never leaves this box
+    mutableSettings = true;  # web-UI edits (filter lists, admin user) persist;
+                              # everything below still wins on every rebuild
 
-    # ─── BATTLEYE BYPASS (GTA V ONLINE) ──────────────────────────────────────────
-  # This blocks the anti-cheat "call home" to allow Invite-Only sessions.
+    settings = {
+      dns = {
+        bind_hosts = [ "0.0.0.0" ];
+        port       = 53;
+
+        upstream_dns = [
+          "tls://dns.quad9.net"              # primary — filtered-at-source malware/phishing block
+          "tls://unfiltered.adguard-dns.com"  # backup — AGH does the filtering, upstream shouldn't double-filter
+        ];
+        bootstrap_dns = [ "9.9.9.9" "149.112.112.112" ]; # resolves the hostnames above before DoT handshake
+
+        enable_dnssec     = true;
+        cache_size        = 4194304; # 4 MiB
+        cache_optimistic  = true;
+        ratelimit         = 0; # LAN-only server — no need to rate-limit your own devices
+      };
+
+      filtering = {
+        protection_enabled = true;
+        filtering_enabled  = true;
+      };
+
+      querylog.enabled   = true; # visibility into what's actually phoning home
+      statistics.enabled = true;
+    };
+  };
+
+  # ─── BATTLEYE BYPASS (GTA V ONLINE) ──────────────────────────────────────────
   networking.extraHosts = ''
-    0.0.0.0 paradise-s1.battleye.com          # Legacy Edition
-    0.0.0.0 test-s1.battleye.com              # Test Servers
-    0.0.0.0 paradiseenhanced-s1.battleye.com  # Enhanced Edition (2025/2026)
+    0.0.0.0 paradise-s1.battleye.com
+    0.0.0.0 test-s1.battleye.com
+    0.0.0.0 paradiseenhanced-s1.battleye.com
   '';
 
   # ─── NETWORK TOOLS ───────────────────────────────────────────────────────────
@@ -124,5 +152,7 @@
     iproute2
     cli-tips
     zenmap
+    mtr      # path latency diagnostics — handy for confirming DNS/VPN isn't the bottleneck
+    iperf3   # LAN throughput testing, since "not slow" is one of your actual requirements
   ];
 }
