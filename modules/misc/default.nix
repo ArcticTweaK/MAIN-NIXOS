@@ -44,7 +44,6 @@
 
     # Browsers
     brave
-    librewolf
     tor-browser
     
     # Dev tools
