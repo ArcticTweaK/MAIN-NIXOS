@@ -116,9 +116,14 @@
     pinentry-qt  # GUI passphrase entry for GPG on KDE/Wayland
     sops         # Secrets management with age/GPG (great for NixOS secrets)
 
+    # Proton Ecosystem
+    proton-vpn
+    protonmail-desktop # Desktop application for Mail and Calendar, made with Electron
+    proton-pass  # Desktop application for Proton Pass
+    proton-authenticator
+
     # Password management
     keepassxc    # Offline, encrypted, audited password manager
-    # Note: keepassxc handles TOTP 2FA too — no separate app needed
 
     # File integrity
     aide         # NEW: File integrity monitoring — detects unauthorized changes

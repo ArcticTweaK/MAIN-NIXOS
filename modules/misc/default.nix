@@ -70,7 +70,9 @@
     
     # Dev tools
     vscodium                # Open-source VSCode build
-    scrcpy                  # Display and control Android devices over USB or TCP/IP
+    devtoolbox              # Development tools at your fingertips
+    docker                  # Open source project to pack, ship and run any application as a lightweight container
+
 
 
     # Communication
@@ -108,6 +110,9 @@
     tree
     gimp                    # GNU Image Manipulation Program
     ventoy-full-qt                  # New Bootable USB Solution GUI
+    wine
+    claude-monitor
+    claude-code
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\

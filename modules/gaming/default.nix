@@ -55,11 +55,13 @@
     jdk17           # For MC 1.17–1.20.4
 
     # Gaming overlay & tools
+    cartridges      # GTK4 + Libadwaita game launcher
     mangohud        # FPS, temps, GPU/CPU usage overlay
     lutris          # Universal game launcher (non-Steam)
     heroic          # Epic Games, GOG, Amazon Games
     bottles         # Windows software in isolated bottles
     prismlauncher   # Best modded Minecraft launcher on Linux
+    
 
     # Vulkan
     vulkan-loader

@@ -80,8 +80,6 @@
     dog
     dnsx
     wireguard-tools
-    openvpn
-    proton-vpn
     proxychains-ng
     tor
     httpie

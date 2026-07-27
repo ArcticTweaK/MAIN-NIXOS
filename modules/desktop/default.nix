@@ -82,5 +82,6 @@
     crossmacro    # A Linux Macro
 
     nvidia-vaapi-driver
+    papirus-icon-theme
   ];
 }
