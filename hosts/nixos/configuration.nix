@@ -98,6 +98,7 @@
 
   nixpkgs.config.permittedInsecurePackages = [
   "olm-3.2.16"
+  "ventoy-qt5-1.1.12"
   ];
 
   environment.systemPackages = with pkgs; [

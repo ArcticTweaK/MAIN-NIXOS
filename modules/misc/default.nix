@@ -107,7 +107,7 @@
     ydotool
     tree
     gimp                    # GNU Image Manipulation Program
-    
+    ventoy-full-qt                  # New Bootable USB Solution GUI
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\
