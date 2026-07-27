@@ -81,7 +81,7 @@
     dnsx
     wireguard-tools
     openvpn
-    protonvpn-gui
+    proton-vpn
     proxychains-ng
     tor
     httpie

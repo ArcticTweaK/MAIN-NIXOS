@@ -131,7 +131,6 @@
     mat2         # NEW: Strip metadata from PDFs, images, audio, etc.
 
     # Certificate tools
-    openssl      # TLS cert inspection and generation
     burpsuite    # GUI web security testing
   ];
 

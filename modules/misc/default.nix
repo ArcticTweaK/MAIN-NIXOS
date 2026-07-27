@@ -28,6 +28,28 @@
   # Realtime audio priority (needed for low-latency pipewire)
   security.rtkit.enable = true;
 
+  # ─── BRAVE — "ORIGIN" EQUIVALENT VIA MANAGED POLICY ─────────────────────────
+  # Brave Origin's "upgrade mode" is just Brave's own group policies applied
+  # to a regular install — no separate binary. This block replicates that on
+  # the free nixpkgs.brave package below, declaratively, via managed policy
+  # JSON. Keys verified against Brave's own GitHub issues / support docs.
+  # TorDisabled intentionally left unset — private Tor windows stay available
+  # alongside the standalone Tor Browser.
+  programs.chromium = {
+    enable = true;
+    extraOpts = {
+      BraveAIChatEnabled       = false;  # kill Leo
+      BraveRewardsDisabled     = true;   # kill Rewards
+      BraveWalletDisabled      = true;   # kill Wallet/crypto
+      BraveVPNDisabled         = true;   # kill VPN promos
+      BraveNewsDisabled        = true;   # kill News
+      BraveTalkDisabled        = true;   # kill Talk
+      BraveP3AEnabled          = false;  # kill P3A telemetry
+      BraveStatsPingEnabled    = false;  # kill daily usage ping
+      BraveWebDiscoveryEnabled = false;  # kill Web Discovery
+    };
+  };
+
   # ─── PACKAGES ────────────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     # System monitoring
@@ -78,14 +100,12 @@
     # Misc
     qbittorrent             # BitTorrent client
     popcorntime             # Stream Movies & TV Shows from torrents
-    ollama                  # Local AI Models
     gnumake                 # default make .file
     hardinfo2               
     dotnet-sdk_10
     protontricks
     ydotool
     tree
-    localsend               # Open source cross-platform alternative to AirDrop
     gimp                    # GNU Image Manipulation Program
     
   ];
@@ -101,8 +121,6 @@
     vimAlias      = true;
     viAlias       = true;
   };
-
-  virtualisation.waydroid.enable = true;
   
   # ─── SERVICES ────────────────────────────────────────────────────────────────
   services.timesyncd.enable = true;   # NTP — keep clock accurate for certs, logs, TOTP

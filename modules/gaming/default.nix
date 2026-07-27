@@ -45,9 +45,9 @@
     };
   };
 
-  # ─── MINECRAFT (Modded) ──────────────────────────────────────────────────────
+  # ─── GAMING PACKAGES ──────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    prismlauncher   # Best modded Minecraft launcher on Linux
+    
 
     # Java runtimes — PrismLauncher can manage these automatically
     # but having them system-wide avoids duplication
@@ -59,7 +59,7 @@
     lutris          # Universal game launcher (non-Steam)
     heroic          # Epic Games, GOG, Amazon Games
     bottles         # Windows software in isolated bottles
-    prismlauncher   # Minecraft Game Launcher
+    prismlauncher   # Best modded Minecraft launcher on Linux
 
     # Vulkan
     vulkan-loader
