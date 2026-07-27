@@ -14,8 +14,7 @@
     dns = "systemd-resolved";   # hand DNS to resolved instead of overriding it
     wifi.macAddress = "stable";
     ethernet.macAddress = "stable";
-    # No static enp4s0 profile anymore — that was pinned specifically for
-    # AdGuard Home's bind address. Plain DHCP now, like before AGH existed.
+    plugins = with pkgs; [ networkmanager-openvpn ];
   };
 
   # ─── SYSTEMD-RESOLVED ────────────────────────────────────────────────────────
@@ -37,6 +36,7 @@
   # ─── FIREWALL ────────────────────────────────────────────────────────────────
   networking.firewall = {
     enable          = true;
+    checkReversePath = "loose"; # strict RP filtering breaks VPN tunnel setup
     allowedTCPPorts = [];
     allowedUDPPorts = [];
     # No more interface-scoped port 53 rule — that hole only existed so LAN

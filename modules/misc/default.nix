@@ -101,7 +101,6 @@
 
     # Misc
     qbittorrent             # BitTorrent client
-    popcorntime             # Stream Movies & TV Shows from torrents
     gnumake                 # default make .file
     hardinfo2               
     dotnet-sdk_10
