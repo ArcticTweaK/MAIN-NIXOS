@@ -91,5 +91,6 @@
     zenmap
     mtr
     iperf3
+    localsend
   ];
 }
