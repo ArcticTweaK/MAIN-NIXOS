@@ -76,6 +76,7 @@
     vlc          # Media player
     navidrome    # Music Server and Streamer compatible with Subsonic/Airsonic
     jellyfin-desktop     # Free Software Media System
+    superfile
 
     # Productivity
     obsidian      # Note-taking

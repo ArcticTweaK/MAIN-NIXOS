@@ -110,8 +110,8 @@
     gimp                    # GNU Image Manipulation Program
     ventoy-full-qt                  # New Bootable USB Solution GUI
     wine
-    claude-monitor
     claude-code
+    libreoffice
   ];
 
   # ─── PROGRAMS ────────────────────────────────────────────────────────────────\

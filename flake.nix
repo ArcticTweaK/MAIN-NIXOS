@@ -28,7 +28,6 @@
           home-manager.useGlobalPkgs        = true;
           home-manager.useUserPackages      = true;
           home-manager.users.arctic         = import ./home/arctic.nix;
-          home-manager.backupFileExtension  = "hm-backup";
         }
       ];
     };
