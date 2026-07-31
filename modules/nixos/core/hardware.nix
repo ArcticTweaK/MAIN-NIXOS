@@ -44,12 +44,15 @@ in
       libraries = cfg.nixLdLibraries pkgs;
     };
 
+    # TAG+="uaccess" hands the device to whoever is logged in at the seat,
+    # via systemd-logind ACLs. The alternative you'll find in most guides —
+    # MODE="0666" plus GROUP="plugdev" — is wrong twice over on NixOS: 0666
+    # makes the device world-writable to every process on the machine, and
+    # `plugdev` is a Debian-ism that does not exist here, so the GROUP= is
+    # silently ignored rather than restricting anything.
     services.udev.extraRules = lib.mkIf cfg.android ''
-      # Android / Google devices (adb, fastboot, MTP).
-      # FIXME(commit 2): MODE="0666" makes the device world-writable and
-      # GROUP="plugdev" names a group that does not exist on NixOS.
-      # Replaced with TAG+="uaccess" in the correctness pass.
-      SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", GROUP="plugdev"
+      # Android / Google devices (adb, fastboot, MTP)
+      SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", TAG+="uaccess"
     '';
   };
 }

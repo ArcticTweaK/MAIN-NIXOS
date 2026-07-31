@@ -19,24 +19,26 @@
 
     # ── Core ────────────────────────────────────────────────────────────────
     core = {
-      boot = {
-        # FIXME(commit 2): 32G of tmpfs on a 31.2 GiB machine, with the nix
-        # daemon building in /tmp. One large Electron build OOMs the box.
-        tmpfsSize = "32G";
-      };
+      # 50% of RAM, not a fixed 32G. This box has 31.2 GiB and the nix daemon
+      # builds in /tmp — a fixed size at ~100% of RAM lets one large Electron
+      # or Chromium build take the whole machine down with it.
+      boot.tmpfsSize = "50%";
 
       nix = {
-        # FIXME(commit 2): "arctic" here is root-equivalent via the nix daemon.
-        trustedUsers = [ "root" "arctic" ];
+        # root ONLY. A trusted user can set post-build-hook/builders per
+        # invocation (the daemon runs them as root) and import unsigned paths
+        # into the store, which makes "trusted" a synonym for root.
+        # nixos-rebuild is unaffected — it already runs under sudo.
+        trustedUsers = [ "root" ];
 
         permittedInsecurePackages = [
-          # FIXME(commit 2): verified absent from the system closure — nothing
-          # needs it (no Matrix client installed).
-          "olm-3.2.16"
-
           # Required by pkgs.ventoy-full-qt, which ships prebuilt binary blobs
           # (nixpkgs#404663). Accepted knowingly: it is only ever run manually
           # to write a bootable USB stick.
+          #
+          # olm-3.2.16 used to be listed here too and was verified absent from
+          # the system closure — nothing needed it. Every entry in this list
+          # needs a comment like this one, or it outlives its reason.
           "ventoy-qt5-1.1.12"
         ];
       };
@@ -50,6 +52,9 @@
         name = "arctic";
         description = "arctic";
 
+        # NixOS silently DROPS groups that do not exist, so a wrong entry here
+        # fails open and looks like it worked. Every group below is asserted
+        # to exist by something this config actually enables.
         extraGroups = [
           "wheel" # sudo
           "networkmanager"
@@ -57,23 +62,23 @@
           "render"
           "audio"
           "input"
-          "i2c" # DDC/CI monitor control
+          "i2c" # <- hardware.i2c.enable (DDC/CI monitor control)
           "dialout" # serial devices (Pico)
-          "tor"
-          "wireshark" # created by arctic.network.tools.capture
+          "tor" # <- services.tor.enable
+          "wireshark" # <- programs.wireshark.enable
+          "ydotool" # <- programs.ydotool.enable
           "kvm"
-          "libvirtd" # root-equivalent: can pass through host devices
+          "libvirtd" # root-equivalent: can pass through arbitrary host devices
           "docker" # FIXME(commit 4): root-equivalent. Gone with podman.
-          "ydotool" # FIXME(commit 2): group does not exist until
-          #           programs.ydotool.enable is set
-          "storage" # FIXME(commit 2): no such group on NixOS
-          "plugdev" # FIXME(commit 2): no such group on NixOS
         ];
 
-        # FIXME(commit 3): "" means EMPTY PASSWORD — anyone at the physical
-        # console gets a shell as this wheel/libvirtd user. Replaced with a
-        # sops-provided hashedPasswordFile.
-        hashedPassword = "";
+        # FIXME(commit 3): replaced with a sops-provided hashedPasswordFile.
+        #
+        # null, NOT "". The empty string is not "unset" — it declares an EMPTY
+        # PASSWORD, which let anyone at the physical console get a shell as
+        # this wheel/libvirtd user. mutableUsers = true means the password set
+        # via `passwd` is untouched by this change.
+        hashedPassword = null;
       };
 
       packages.database = true; # postgresql

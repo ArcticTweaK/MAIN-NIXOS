@@ -11,9 +11,10 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.wooting {
-      # This already installs pkgs.wooting-udev-rules via services.udev.packages.
-      # FIXME(commit 2): the hand-written Wooting rules currently in the legacy
-      # gaming module duplicate exactly what this provides. Dropped in commit 2.
+      # This installs pkgs.wooting-udev-rules via services.udev.packages,
+      # which covers every Wooting VID/PID including the legacy 03eb ones.
+      # The config previously carried eight hand-written rules duplicating
+      # exactly that; they are gone.
       hardware.wooting.enable = true;
     })
 

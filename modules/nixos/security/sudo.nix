@@ -16,19 +16,17 @@ in
       wheelNeedsPassword = true;
       execWheelOnly = true;
 
-      # FIXME(commit 2):
-      #   requiretty        breaks sudo from systemd units, pipes and scripts
-      #   log_output        writes FULL terminal transcripts (including anything
-      #                     you `sudo cat`) to an unrotated /var/log/sudo-io/
-      #   timestamp_timeout 5 is already sudo's compiled-in default — a no-op
+      # Event log only: who ran what, when. Deliberately NOT `log_output`,
+      # which records full terminal transcripts into an unrotated, unbounded
+      # /var/log/sudo-io/ — including the output of anything you
+      # `sudo cat /run/secrets/*`. That turns the audit trail into the single
+      # richest secret store on the box.
+      #
+      # Also deliberately absent:
+      #   requiretty        breaks sudo from systemd units, scripts and pipes
+      #   timestamp_timeout=5   already sudo's compiled-in default; a no-op
       extraConfig = ''
-        # Log all sudo usage
-        Defaults        log_output
         Defaults        logfile="/var/log/sudo.log"
-        # Require full tty
-        Defaults        requiretty
-        # Timeout after 5 minutes of inactivity
-        Defaults        timestamp_timeout=5
       '';
     };
 

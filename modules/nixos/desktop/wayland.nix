@@ -25,11 +25,16 @@ in
       __GL_VRR_ALLOWED = "1";
       LIBVA_DRIVER_NAME = "nvidia";
 
-      # FIXME(commit 2): MOZ_* vars here target a Firefox that is not installed.
-      # MOZ_DISABLE_RDD_SANDBOX in particular is read by Tor Browser (which IS
-      # Firefox) and disables its media-decode sandbox. Removed in commit 2.
-      MOZ_ENABLE_WAYLAND = "1";
-      MOZ_DISABLE_RDD_SANDBOX = "1";
+      # Deliberately NOT set here: MOZ_DISABLE_RDD_SANDBOX = "1".
+      #
+      # It was added to fix VA-API in Firefox, which is not installed. But Tor
+      # Browser IS Firefox and does read it — so the only effect it ever had
+      # was disabling the media-decode process sandbox in the one browser on
+      # this machine where that sandbox matters most. Dead config that was
+      # quietly a live regression.
+      #
+      # MOZ_ENABLE_WAYLAND went with it for the same reason: no Firefox, and
+      # Tor Browser manages its own display backend.
     };
   };
 }

@@ -17,19 +17,19 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # SOCKS5 on 127.0.0.1:9050 and nothing else.
+    #
+    # Deliberately no TransPort/DNSPort: those open listeners that only do
+    # something if nat REDIRECT rules point traffic at them, and no such rules
+    # exist here. Two idle ports that look like transparent proxying but
+    # aren't is worse than not having them — it invites you to believe traffic
+    # is going through Tor when it is going straight out.
+    #
+    # StrictNodes is likewise omitted: without ExitNodes/EntryNodes/
+    # ExcludeNodes it is documented as having no effect either way.
     services.tor = {
       enable = true;
       client.enable = true;
-
-      # FIXME(commit 2): TransPort/DNSPort open listeners that nothing routes
-      # to — transparent proxying needs nat REDIRECT rules that do not exist.
-      # StrictNodes without Entry/ExitNodes is documented as a no-op.
-      # All three removed in commit 2.
-      settings = {
-        DNSPort = 9053;
-        StrictNodes = false;
-        TransPort = 9040;
-      };
     };
   };
 }

@@ -16,6 +16,11 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Use the module, not the bare package: it runs the ydotoold daemon and
+    # creates the `ydotool` group, without which the group listed in the
+    # user's extraGroups does not exist and membership means nothing.
+    programs.ydotool.enable = cfg.automation;
+
     environment.systemPackages = with pkgs; [
       papirus-icon-theme
     ]
@@ -43,7 +48,6 @@ in
       ventoy-full-qt
     ]
     ++ lib.optionals cfg.automation [
-      ydotool
       crossmacro
     ];
   };
