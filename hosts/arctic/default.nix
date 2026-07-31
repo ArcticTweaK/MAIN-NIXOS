@@ -120,15 +120,13 @@
       manager.ethernetMacAddress = "stable";
 
       firewall = {
-        backend = "iptables"; # FIXME(commit 5): -> nftables, after docker goes
+        backend = "nftables";
         localsend = true; # opens TCP+UDP 53317
-        # The docker0 blanket ACCEPT went with docker. Podman generates its
-        # own rules and needs nothing here.
-        # FIXME(commit 5): the remaining rule is redundant — both firewall
-        # backends already accept ESTABLISHED,RELATED in the input chain.
-        extraCommands = ''
-          iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-        '';
+
+        # No extra rules at all. Both rules that used to be here were
+        # deletable rather than translatable: the docker0 blanket ACCEPT went
+        # with docker, and the ESTABLISHED,RELATED accept was redundant —
+        # every NixOS firewall backend already does that in the input chain.
       };
 
       tor.enable = true; # SOCKS5 on 127.0.0.1:9050 for proxychains/torsocks
