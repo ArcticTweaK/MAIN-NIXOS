@@ -6,6 +6,7 @@ _:
     ./dns.nix
     ./firewall.nix
     ./tor.nix
+    ./vpn.nix
     ./tools.nix
   ];
 }

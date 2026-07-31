@@ -114,10 +114,21 @@
 
     # ── Network ─────────────────────────────────────────────────────────────
     network = {
-      # FIXME(commit 6): "stable" is still a persistent per-SSID identifier.
-      # Moving WiFi to "random" once the DNS/privacy pass lands.
-      manager.wifiMacAddress = "stable";
-      manager.ethernetMacAddress = "stable";
+      # Fresh MAC per WiFi association. "stable" was still a persistent
+      # per-SSID identifier that every AP could log and correlate.
+      # Ethernet stays permanent: the cable already identifies the location,
+      # and randomising it breaks DHCP reservations for nothing.
+      manager.wifiMacAddress = "random";
+      manager.ethernetMacAddress = "permanent";
+
+      dns = {
+        enable = true;
+        provider = "quad9";
+        overTls = true; # strict: encrypted or it does not resolve
+        dnssec = true; # strict, NOT allow-downgrade
+        mdns = true; # LocalSend + network printers
+        llmnr = false;
+      };
 
       firewall = {
         backend = "nftables";
@@ -130,6 +141,18 @@
       };
 
       tor.enable = true; # SOCKS5 on 127.0.0.1:9050 for proxychains/torsocks
+
+      # Defined but not started. Fill in endpoint/publicKey from the Proton
+      # dashboard's WireGuard config and put the private key in sops
+      # (`sops secrets/arctic.yaml`), then flip enable.
+      #   vpn-up / vpn-down / vpn-status
+      vpn.proton = {
+        enable = false;
+        autoStart = false; # gaming latency — opt in per session
+        killSwitch = true;
+        # endpoint  = "203.0.113.10:51820";
+        # publicKey = "...";
+      };
 
       tools = {
         enable = true;
@@ -148,8 +171,22 @@
 
     # ── Security ────────────────────────────────────────────────────────────
     security = {
-      kernel.hardenSysctl = true;
-      kernel.blacklistModules = true;
+      kernel = {
+        hardenSysctl = true;
+        hardenParams = true;
+        blacklistModules = true;
+        ipv6PrivacyExtensions = true;
+
+        # 16 = sync only. NOT 0: with NVIDIA + Wayland, Alt+SysRq is the only
+        # clean way out of a wedged compositor, and cutting power to btrfs is
+        # worse than the threat sysrq=0 defends against.
+        sysrq = 16;
+
+        # The one hardening param that shows up in frametime graphs. Try it
+        # and A/B the 1% lows in MangoHud before leaving it on.
+        initOnFree = false;
+      };
+
       sudo.harden = true;
       gpg.enable = true;
 
@@ -168,13 +205,24 @@
         managePasswords = false;
       };
 
-      # FIXME(commit 6): each of these is currently non-functional. See the
-      # per-module comments — they are fixed or deleted in the hardening pass.
-      apparmor.enable = true; # no policies loaded -> confines nothing
-      audit.enable = true; # no auditd -> no audit.log, no ausearch
-      clamav.enable = true; # daemon resident, nothing ever scans
-      fail2ban.enable = true; # jails an sshd that does not exist
-      usbguard.enable = false; # and both policies are "allow" anyway
+      # OFF, and this is the honest setting rather than a downgrade.
+      #
+      # AppArmor only loads profiles from security.apparmor.policies;
+      # security.apparmor.packages merely adds an #include search path and
+      # loads nothing, and upstream apparmor-profiles are keyed on FHS paths
+      # (/usr/bin/firefox) that do not exist on NixOS. So `enable = true` with
+      # no policies confined NOTHING while looking like coverage.
+      #
+      # Landlock — which modern applications actually use — is active either
+      # way. Turn this on only together with real, hand-written policies.
+      apparmor.enable = false;
+
+      audit.enable = true; # now includes the auditd daemon
+      clamav.enable = true; # updater + weekly scan, no resident daemon
+
+      # fail2ban and usbguard are gone entirely. fail2ban's only jail was
+      # sshd and this host runs no sshd; usbguard was disabled and had both
+      # policies set to "allow", so it would have blocked nothing either way.
 
       tools = {
         enable = true;
@@ -195,7 +243,23 @@
 
     # ── Applications ────────────────────────────────────────────────────────
     apps = {
-      flatpak.enable = true; # required for Sober (Roblox)
+      flatpak = {
+        enable = true;
+        apps = [
+          # The whole reason Flatpak is here — Roblox. Not in nixpkgs, and
+          # `vinegar` is the Studio wrapper, not this.
+          "org.vinegarhq.Sober"
+
+          "com.github.tchx84.Flatseal" # per-app permission editor
+          "io.github.flattool.Warehouse" # flatpak data management
+          "tv.plex.PlexDesktop"
+        ];
+
+        # Left off until you have confirmed nothing else installed by hand is
+        # still needed. Flipping it to true makes this list authoritative and
+        # DELETES anything unlisted, including its ~/.var/app data.
+        uninstallUnmanaged = false;
+      };
 
       browsers.enable = true;
       dev = {

@@ -16,6 +16,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative Flatpak. Needed for exactly one thing with no nixpkgs
+    # equivalent: org.vinegarhq.Sober, which is how Roblox runs on Linux.
+    # (It declares no flake inputs of its own, so it adds nothing to the lock.)
+    nix-flatpak.url = "github:gmodena/nix-flatpak";
+
     nur.url = "github:nix-community/NUR";
   };
 
