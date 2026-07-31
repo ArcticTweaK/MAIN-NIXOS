@@ -1,0 +1,21 @@
+# ── Build artifacts ──────────────────────────────────────────────────────────
+result
+result-*
+.direnv/
+
+# ── SECRETS: the age private key must NEVER land next to the files it opens ──
+# secrets/*.yaml is sops-ENCRYPTED and is meant to be committed.
+# The private key is not. These patterns are deliberately broad.
+key.txt
+keys.txt
+*.agekey
+*.age
+!secrets/*.yaml
+.sops-key*
+age-key*
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+*.qcow2
+*.swp
+*~
+.DS_Store
