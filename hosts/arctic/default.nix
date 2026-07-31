@@ -69,7 +69,9 @@
           "ydotool" # <- programs.ydotool.enable
           "kvm"
           "libvirtd" # root-equivalent: can pass through arbitrary host devices
-          "docker" # FIXME(commit 4): root-equivalent. Gone with podman.
+
+          # No `docker` group. It was root-equivalent by design and is not
+          # needed by rootless podman, which is what replaced it.
         ];
 
         # FIXME(commit 3): replaced with a sops-provided hashedPasswordFile.
@@ -120,10 +122,11 @@
       firewall = {
         backend = "iptables"; # FIXME(commit 5): -> nftables, after docker goes
         localsend = true; # opens TCP+UDP 53317
-        # FIXME(commit 5): rule 1 disappears with docker; rule 2 is redundant,
-        # both firewall backends already accept ESTABLISHED,RELATED.
+        # The docker0 blanket ACCEPT went with docker. Podman generates its
+        # own rules and needs nothing here.
+        # FIXME(commit 5): the remaining rule is redundant — both firewall
+        # backends already accept ESTABLISHED,RELATED in the input chain.
         extraCommands = ''
-          iptables -I INPUT -i docker0 -j ACCEPT
           iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
         '';
       };
@@ -187,7 +190,8 @@
 
     # ── Virtualisation ──────────────────────────────────────────────────────
     virt = {
-      docker.enable = true; # FIXME(commit 4): -> rootless podman
+      podman.enable = true;
+      podman.dockerCompat = true; # `docker` and `docker compose` still work
       libvirt.enable = true;
     };
 
