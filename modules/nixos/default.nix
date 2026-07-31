@@ -20,5 +20,6 @@ _:
     ./security
     ./virt
     ./apps
+    ./disk
   ];
 }

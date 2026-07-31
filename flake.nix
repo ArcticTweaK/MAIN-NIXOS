@@ -16,6 +16,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative disk partitioning. Inert until arctic.disk.useDisko; see
+    # hosts/arctic/disko.nix. This is what makes a wipe-and-reinstall one
+    # command instead of an hour of fdisk from memory.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # UEFI Secure Boot.
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Ephemeral root. Staged off; see modules/nixos/disk/impermanence.nix.
+    impermanence.url = "github:nix-community/impermanence";
+
     # Declarative Flatpak. Needed for exactly one thing with no nixpkgs
     # equivalent: org.vinegarhq.Sober, which is how Roblox runs on Linux.
     # (It declares no flake inputs of its own, so it adds nothing to the lock.)
@@ -44,6 +61,12 @@
         hostName = "arctic";
         stateVersion = "24.11";
       };
+
+      # Exposed at top level so `disko-install --flake .#arctic` and
+      # `nix run github:nix-community/disko -- --flake .#arctic` can find the
+      # layout WITHOUT evaluating the whole host. Same source file that the
+      # (currently disabled) NixOS-side disko module reads.
+      diskoConfigurations.arctic = import ./hosts/arctic/disko.nix;
 
       # ── Reusable module trees, so a future host elsewhere can consume them ─
       nixosModules.default = ./modules/nixos;

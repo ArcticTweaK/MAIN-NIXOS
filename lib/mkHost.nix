@@ -43,6 +43,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # ── third-party modules (all inert until their options are set) ─────────
     inputs.sops-nix.nixosModules.sops
     inputs.nix-flatpak.nixosModules.nix-flatpak
+    inputs.disko.nixosModules.disko
+    inputs.lanzaboote.nixosModules.lanzaboote
+    inputs.impermanence.nixosModules.impermanence
 
     # ── our option modules ──────────────────────────────────────────────────
     ../modules/nixos

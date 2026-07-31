@@ -12,7 +12,8 @@
 {
   imports = [
     ./hardware.nix
-    ./filesystems.nix
+    ./disko.nix # declares the TARGET layout; inert while useDisko = false
+    ./filesystems.nix # today's ext4 machine
   ];
 
   arctic = {
@@ -220,6 +221,17 @@
       audit.enable = true; # now includes the auditd daemon
       clamav.enable = true; # updater + weekly scan, no resident daemon
 
+      # STAGED OFF. Turning this on replaces systemd-boot with lanzaboote and
+      # needs a one-time trip into firmware to enroll keys — see README.md
+      # step 6. Safe with the NVIDIA module on this system: nixpkgs' kernel
+      # has CONFIG_SECURITY_LOCKDOWN_LSM unset, so Secure Boot cannot engage
+      # the lockdown that blocks unsigned out-of-tree modules elsewhere.
+      secureboot = {
+        enable = false;
+        autoProvision = true;
+        includeMicrosoftKeys = true; # GPU option ROMs are signed by the MS CA
+      };
+
       # fail2ban and usbguard are gone entirely. fail2ban's only jail was
       # sshd and this host runs no sshd; usbguard was disabled and had both
       # policies set to "allow", so it would have blocked nothing either way.
@@ -280,6 +292,24 @@
         automation = true;
       };
       reverseEngineering.enable = true;
+    };
+
+    # ── Disk ────────────────────────────────────────────────────────────────
+    disk = {
+      # THE reinstall flip. false = today's ext4 machine (./filesystems.nix).
+      # Set true in the commit you install FROM, then delete filesystems.nix.
+      # Do not `nixos-rebuild switch` with this true on the old disk.
+      useDisko = false;
+
+      # Staged. Path list written while the live machine was still observable.
+      # wipeHome stays false even when this is turned on: /home is its own
+      # subvolume, so wiping / alone already proves the config is complete
+      # without putting a 119 GB Steam library and a decade of app state
+      # behind a list I have to get exactly right.
+      impermanence = {
+        enable = false;
+        wipeHome = false;
+      };
     };
   };
 

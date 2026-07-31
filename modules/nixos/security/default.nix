@@ -9,6 +9,7 @@ _:
     ./clamav.nix
     ./gpg.nix
     ./secrets.nix
+    ./secureboot.nix
     ./tools.nix
   ];
 }
