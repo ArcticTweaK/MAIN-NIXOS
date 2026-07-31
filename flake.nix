@@ -9,6 +9,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Secrets. Encrypted files live in ./secrets and ARE committed; the age
+    # private key that opens them never is. See README.md.
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nur.url = "github:nix-community/NUR";
   };
 

@@ -40,6 +40,9 @@ inputs.nixpkgs.lib.nixosSystem {
       system.stateVersion = stateVersion;
     }
 
+    # ── third-party modules (all inert until their options are set) ─────────
+    inputs.sops-nix.nixosModules.sops
+
     # ── our option modules ──────────────────────────────────────────────────
     ../modules/nixos
 

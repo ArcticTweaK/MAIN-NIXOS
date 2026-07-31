@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  sops recipient configuration.
+#
+#  This file is PUBLIC and committed. It lists the age public keys allowed to
+#  decrypt each secrets file. The matching PRIVATE key lives at
+#  ~/.config/sops/age/keys.txt on this machine and /var/lib/sops-nix/key.txt
+#  on the running system, and is never committed — see .gitignore.
+#
+#  Adding a new recipient (a second machine, a backup key):
+#    1. add its public key below, both as an anchor and in key_groups
+#    2. re-encrypt existing files:  sops updatekeys secrets/arctic.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+
+keys:
+  - &arctic age10ptah7kf5zhepd26j2h3darhu2ldl0d9fy8vedmr4f4h47gl4aqsrjntgh
+
+creation_rules:
+  - path_regex: secrets/[^/]+\.yaml$
+    key_groups:
+      - age:
+          - *arctic

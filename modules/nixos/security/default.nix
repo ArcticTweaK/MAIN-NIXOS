@@ -10,6 +10,7 @@ _:
     ./fail2ban.nix
     ./usbguard.nix
     ./gpg.nix
+    ./secrets.nix
     ./tools.nix
   ];
 }

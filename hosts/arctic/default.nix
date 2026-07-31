@@ -152,6 +152,21 @@
       sudo.harden = true;
       gpg.enable = true;
 
+      secrets = {
+        enable = true;
+
+        # STAGED OFF. Turn this on only after BOTH of:
+        #   1. `sops secrets/arctic.yaml` contains real yescrypt hashes
+        #      (mkpasswd -m yescrypt) instead of the REPLACE-ME placeholders
+        #   2. /var/lib/sops-nix/key.txt exists on this machine, mode 0600 root
+        # then rebuild and check `sudo grep '^arctic:' /etc/shadow` BEFORE
+        # logging out. See README.md step 3.
+        #
+        # The placeholders are deliberately not valid hashes, so flipping this
+        # early fails closed (nothing authenticates) rather than open.
+        managePasswords = false;
+      };
+
       # FIXME(commit 6): each of these is currently non-functional. See the
       # per-module comments — they are fixed or deleted in the hardening pass.
       apparmor.enable = true; # no policies loaded -> confines nothing
