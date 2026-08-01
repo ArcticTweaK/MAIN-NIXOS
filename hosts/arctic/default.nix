@@ -194,16 +194,15 @@
       secrets = {
         enable = true;
 
-        # STAGED OFF. Turn this on only after BOTH of:
-        #   1. `sops secrets/arctic.yaml` contains real yescrypt hashes
-        #      (mkpasswd -m yescrypt) instead of the REPLACE-ME placeholders
-        #   2. /var/lib/sops-nix/key.txt exists on this machine, mode 0600 root
-        # then rebuild and check `sudo grep '^arctic:' /etc/shadow` BEFORE
-        # logging out. See README.md step 3.
+        # ON. Both preconditions are met:
+        #   1. secrets/arctic.yaml holds real yescrypt hashes for
+        #      arctic-password and root-password (verified $y$j9T$..., 73 ch)
+        #   2. /var/lib/sops-nix/key.txt is in place, 0600 root
         #
-        # The placeholders are deliberately not valid hashes, so flipping this
-        # early fails closed (nothing authenticates) rather than open.
-        managePasswords = false;
+        # On a fresh install the hash SEEDS the account at creation; with
+        # users.mutableUsers = true it is not re-asserted afterwards, so
+        # `passwd` still works and survives every rebuild.
+        managePasswords = true;
       };
 
       # OFF, and this is the honest setting rather than a downgrade.
