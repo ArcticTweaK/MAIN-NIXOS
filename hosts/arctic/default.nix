@@ -298,7 +298,7 @@
       # THE reinstall flip. false = today's ext4 machine (./filesystems.nix).
       # Set true in the commit you install FROM, then delete filesystems.nix.
       # Do not `nixos-rebuild switch` with this true on the old disk.
-      useDisko = false;
+      useDisko = true;
 
       # Staged. Path list written while the live machine was still observable.
       # wipeHome stays false even when this is turned on: /home is its own

@@ -1,19 +1,25 @@
-_:
+{ config, lib, ... }:
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  arctic — CURRENT (pre-wipe) disk layout: hand-partitioned LUKS + ext4.
 #
-#  This file describes the machine as it exists today. It is merged only while
-#  `arctic.disk.useDisko = false`. After the reinstall described in README.md,
-#  flip that boolean and disko generates all of this from ./disko.nix instead —
-#  at which point this file can be deleted.
+#  This describes the machine as it exists today, and is merged ONLY while
+#  `arctic.disk.useDisko = false`. Once that flips, disko generates all of it
+#  from ./disko.nix instead and this file goes quiet — after the reinstall it
+#  can be deleted outright, along with its line in ./default.nix's imports.
+#
+#  Note the gate is on the CONFIG, not the import. A NixOS module's `imports`
+#  list is evaluated before `config` exists, so it cannot branch on an option;
+#  wrapping the body in mkIf is the way to make a file conditional. Getting
+#  this wrong produces a conflicting-definition error for fileSystems."/" that
+#  only appears once useDisko is true — i.e. at install time, from the ISO.
 #
 #  Layout:  nvme0n1p1  1G      vfat  ESP  -> /boot
 #           nvme0n1p2  896.2G  LUKS  ext4 -> /
 #           nvme0n1p3  34.3G   LUKS  swap
 # ─────────────────────────────────────────────────────────────────────────────
 
-{
+lib.mkIf (!config.arctic.disk.useDisko) {
   fileSystems."/" = {
     device = "/dev/mapper/luks-d61205ad-265f-44e3-ba4b-9b3de51370ad";
     fsType = "ext4";
