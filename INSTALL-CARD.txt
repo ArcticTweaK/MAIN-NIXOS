@@ -39,11 +39,32 @@ BEFORE YOU START — have on the USB stick:
   Check:  ping -c2 github.com
 
 ================================================================================
- 2. RESTORE THE AGE KEY  (to the ISO's RAM, not the disk yet)
+ 2. MOUNT THE USB, THEN RESTORE THE AGE KEY
 ================================================================================
-  mkdir -p /tmp/keys && chmod 700 /tmp/keys
-  cp /run/media/*/age-key.txt /tmp/keys/key.txt     # adjust path if needed
-  chmod 600 /tmp/keys/key.txt
+  The minimal ISO has NO desktop and NO auto-mounting. Nothing appears under
+  /run/media. You must mount the Ventoy partition by hand.
+
+  Find it — the exfat partition labelled VENTOY, usually /dev/sda1:
+    lsblk -o NAME,SIZE,FSTYPE,LABEL
+
+  Mount it:
+    mkdir -p /mnt/usb
+    mount /dev/sda1 /mnt/usb
+    ls /mnt/usb                 # ISO, age-key.txt, INSTALL-CARD.txt
+
+  (If mount complains about exfat:  nix-shell -p exfatprogs --run 'mount /dev/sda1 /mnt/usb' )
+
+  You can read THIS FILE from there at any point:
+    less /mnt/usb/INSTALL-CARD.txt
+
+  Now copy the key into the ISO's RAM (not the disk yet):
+    mkdir -p /tmp/keys && chmod 700 /tmp/keys
+    cp /mnt/usb/age-key.txt /tmp/keys/key.txt
+    chmod 600 /tmp/keys/key.txt
+
+  NOTE: /mnt/usb must be UNMOUNTED before step 5's `umount -R /mnt`,
+  or that command will try to unmount your USB too:
+    umount /mnt/usb            # do this once the key is copied
 
   ### CHECKPOINT 1 — must print the key shown at the top of this card ###
   nix-shell -p age --run 'age-keygen -y /tmp/keys/key.txt'
@@ -120,10 +141,12 @@ BEFORE YOU START — have on the USB stick:
     sudo nixos-rebuild switch --flake .#arctic
     git commit -am "arctic: drop the pre-disko ext4 layout" && git push
 
-  Restore the age key to your user (for editing secrets):
+  Restore the age key to your user (for editing secrets). The desktop DOES
+  auto-mount, so the USB will appear under /run/media/arctic/VENTOY:
     mkdir -p ~/.config/sops/age
-    cp /run/media/*/age-key.txt ~/.config/sops/age/keys.txt
+    cp /run/media/arctic/VENTOY/age-key.txt ~/.config/sops/age/keys.txt
     chmod 600 ~/.config/sops/age/keys.txt
+    age-keygen -y ~/.config/sops/age/keys.txt   # must match the key at top
 
 ================================================================================
  7. SECURE BOOT  (optional, do it once the system is settled)
