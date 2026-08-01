@@ -1,0 +1,182 @@
+================================================================================
+  arctic — REINSTALL CARD                    copy this to the Ventoy USB stick
+================================================================================
+  Machine : MSI MPG Z690 EDGE WIFI DDR4 / i5-12600K / RTX 3070 Ti
+  Disk    : Samsung 980 PRO 1TB NVMe
+  Repo    : https://github.com/ArcticTweaK/MAIN-NIXOS
+  Expected age public key (memorise the first 8 chars: age10pta):
+    age10ptah7kf5zhepd26j2h3darhu2ldl0d9fy8vedmr4f4h47gl4aqsrjntgh
+================================================================================
+
+BEFORE YOU START — have on the USB stick:
+  [ ] nixos-minimal-*.iso        (Ventoy boots it from the exFAT partition)
+  [ ] age-key.txt                (the age PRIVATE key)
+  [ ] this file
+
+  Secure Boot is ALREADY disabled on this board. CSM is already off.
+  You do NOT need to enter BIOS setup first. Just tap F11 at the MSI splash
+  and choose the USB.  (Delete = setup, F7 = EZ/Advanced toggle.)
+
+  DO NOT flash a BIOS update before this. It clears NVRAM and Secure Boot
+  keys, which undoes phase 6.
+
+================================================================================
+ 1. BOOT THE ISO
+================================================================================
+  Tap F11 at the MSI splash -> pick the Ventoy USB -> pick the NixOS ISO.
+
+  sudo -i
+
+  Network: plug in ethernet (preferred). For wifi:
+    systemctl start wpa_supplicant
+    wpa_cli
+      > add_network
+      > set_network 0 ssid "Gaige-Network"
+      > set_network 0 psk "yourpassword"
+      > enable_network 0
+      > quit
+
+  Check:  ping -c2 github.com
+
+================================================================================
+ 2. RESTORE THE AGE KEY  (to the ISO's RAM, not the disk yet)
+================================================================================
+  mkdir -p /tmp/keys && chmod 700 /tmp/keys
+  cp /run/media/*/age-key.txt /tmp/keys/key.txt     # adjust path if needed
+  chmod 600 /tmp/keys/key.txt
+
+  ### CHECKPOINT 1 — must print the key shown at the top of this card ###
+  nix-shell -p age --run 'age-keygen -y /tmp/keys/key.txt'
+
+  If it does not match: STOP. Wrong key = passwords will not decrypt.
+
+================================================================================
+ 3. IDENTIFY THE DISK
+================================================================================
+  ls -l /dev/disk/by-id/ | grep -v part
+
+  Look for:  nvme-Samsung_SSD_980_PRO_1TB_<serial>
+  Write it here: ______________________________________________________
+
+  (The repo has a PLACEHOLDER on purpose. --disk below overrides it.)
+
+================================================================================
+ 4. INSTALL   *** THIS ERASES THE ENTIRE DISK ***
+================================================================================
+  nix --experimental-features "nix-command flakes" \
+    run 'github:nix-community/disko/latest#disko-install' -- \
+    --flake 'github:ArcticTweaK/MAIN-NIXOS#arctic' \
+    --disk main /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_1TB_XXXXXXXX \
+    --extra-files /tmp/keys/key.txt /var/lib/sops-nix/key.txt \
+    --write-efi-boot-entries
+
+  You will be asked to set a NEW LUKS PASSPHRASE.
+  This is a NEW secret. It is not your account password and is not in sops.
+  You type it at every boot. Do not lose it.
+
+  Takes 10-30 min depending on network.
+
+================================================================================
+ 5. CHECKPOINT 2 — VERIFY BEFORE REBOOTING.  DO NOT SKIP.
+================================================================================
+  nixos-install runs activation through `nixos-enter`, which ends in
+  "|| true" — it SWALLOWS errors. Silence is not success.
+
+  grep '^arctic:' /mnt/etc/shadow
+
+    arctic:$y$j9T$....   GOOD -> continue
+    arctic:!             BAD  -> sops did not decrypt. Diagnose:
+                                   ls -l /mnt/var/lib/sops-nix/key.txt
+                                   nixos-enter --root /mnt -- journalctl -b | grep -i sops
+
+  Set passwords by hand regardless (harmless; mutableUsers=true keeps them):
+    nixos-enter --root /mnt -- passwd arctic
+    nixos-enter --root /mnt -- passwd root
+
+  ls /mnt/boot/EFI/Linux/  /mnt/boot/EFI/systemd/     # bootloader present
+
+  umount -R /mnt
+  cryptsetup close cryptroot
+  reboot                                              # PULL THE USB OUT
+
+================================================================================
+ 6. FIRST BOOT
+================================================================================
+  LUKS passphrase prompt -> log in as arctic.
+
+  findmnt -t btrfs                 # /  /home  /nix  /persist  /.snapshots
+  sudo btrfs subvolume list /
+  swapon --show
+  ls -l /run/secrets-for-users/    # arctic-password  root-password
+  nvidia-smi                       # GPU driver loaded
+  journalctl -fu flatpak-managed-install    # Sober/Roblox installing
+
+  git clone https://github.com/ArcticTweaK/MAIN-NIXOS ~/nixos-config
+  cd ~/nixos-config
+
+  Then DELETE the old ext4 layout, now dead:
+    rm hosts/arctic/filesystems.nix
+    # and remove the "./filesystems.nix" line from hosts/arctic/default.nix
+    sudo nixos-rebuild switch --flake .#arctic
+    git commit -am "arctic: drop the pre-disko ext4 layout" && git push
+
+  Restore the age key to your user (for editing secrets):
+    mkdir -p ~/.config/sops/age
+    cp /run/media/*/age-key.txt ~/.config/sops/age/keys.txt
+    chmod 600 ~/.config/sops/age/keys.txt
+
+================================================================================
+ 7. SECURE BOOT  (optional, do it once the system is settled)
+================================================================================
+  Set in hosts/arctic/default.nix:
+      arctic.security.secureboot.enable = true;
+  sudo nixos-rebuild switch --flake .#arctic
+  sudo reboot
+
+  Check the keys got staged:
+    sudo ls -l /var/lib/sbctl/keys        # PK KEK db
+    sudo ls -l /boot/loader/keys/auto/    # PK.auth KEK.auth db.auth
+
+  MSI BIOS (Delete at splash, F7 for Advanced):
+    Settings > Advanced > Windows OS Configuration > Secure Boot
+      Secure Boot Mode      -> Custom
+      Enroll all Factory... -> or "Reset to Setup Mode" (clears PK)
+      Secure Boot           -> Enabled
+    F10 save + exit
+
+  systemd-boot enrolls the .auth files on next boot. Then:
+    bootctl status | head -6      # Secure Boot: enabled (user)
+    sudo sbctl verify
+    nvidia-smi                    # GPU MUST still work
+
+  ### BACK UP /var/lib/sbctl AFTER THIS ###
+
+================================================================================
+ 8. RESTORE (all logins, nothing to copy)
+================================================================================
+  [ ] Proton VPN  — open app, sign in (recreates its NM connections)
+  [ ] WiFi        — Gaige-Network , iPhone
+  [ ] Steam       — sign in, re-download games
+  [ ] Roblox      — open Sober, sign in
+  [ ] Brave       — sign in to Brave Sync
+  [ ] ~/.ssh ~/.gnupg  — from backup if you kept one
+
+================================================================================
+ IF SOMETHING GOES WRONG
+================================================================================
+  Nothing here is irreversible except step 4 erasing the disk.
+
+  Cannot log in after reboot   -> boot the ISO, then:
+                                    cryptsetup open /dev/nvme0n1p2 cryptroot
+                                    mount -o subvol=@root /dev/mapper/cryptroot /mnt
+                                    mount -o subvol=@nix /dev/mapper/cryptroot /mnt/nix
+                                    mount /dev/nvme0n1p1 /mnt/boot
+                                    nixos-enter --root /mnt -- passwd arctic
+
+  Install failed midway        -> just re-run step 4. It is idempotent;
+                                  it wipes and starts over.
+
+  Machine will not POST after
+  Secure Boot                  -> Clear CMOS (jumper/button on the board),
+                                  or BIOS > Secure Boot > Reset to Setup Mode
+================================================================================
