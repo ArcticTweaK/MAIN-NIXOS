@@ -143,17 +143,8 @@
 
       tor.enable = true; # SOCKS5 on 127.0.0.1:9050 for proxychains/torsocks
 
-      # Defined but not started. Fill in endpoint/publicKey from the Proton
-      # dashboard's WireGuard config and put the private key in sops
-      # (`sops secrets/arctic.yaml`), then flip enable.
-      #   vpn-up / vpn-down / vpn-status
-      vpn.proton = {
-        enable = false;
-        autoStart = false; # gaming latency — opt in per session
-        killSwitch = true;
-        # endpoint  = "203.0.113.10:51820";
-        # publicKey = "...";
-      };
+      # VPN is the Proton GUI app, not a declarative tunnel — see the comment
+      # in modules/nixos/network/default.nix for why.
 
       tools = {
         enable = true;

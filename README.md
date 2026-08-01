@@ -68,7 +68,6 @@ each has a documented turn-on procedure below.
 | `arctic.disk.useDisko` | you are installing onto a wiped disk (phase 1) |
 | `arctic.security.secureboot.enable` | you are ready for the firmware trip (phase 6) |
 | `arctic.disk.impermanence.enable` | after reinstall, once you trust the path list |
-| `arctic.network.vpn.proton.enable` | you have filled in endpoint/publicKey |
 | `arctic.apps.flatpak.uninstallUnmanaged` | nothing hand-installed is still needed |
 
 ---
@@ -243,6 +242,17 @@ while firmware is in Setup Mode does it by hand.
 ## Phase 7 — after
 
 Restore `~/.ssh`, `~/.gnupg`, `~/.var/app`, NetworkManager connections, Steam.
+
+**Things this config deliberately does not reproduce.** All are a login, not a
+restore — which is why they are not worth the complexity of declaring:
+
+| | |
+|---|---|
+| Proton VPN | open the app, sign in. It recreates its own NetworkManager connections (a wireguard interface plus killswitch and IPv6-leak dummies) |
+| WiFi | two networks, `Gaige-Network` and `iPhone`. Retype the PSKs |
+| Steam library | sign in, re-download what you still play |
+| Roblox | Sober installs declaratively; the login is a login |
+| Brave profile | sign in to Brave Sync |
 
 `system.stateVersion` stays `"24.11"`. Never bump it — it is a compatibility
 marker for stateful defaults, not a version number.
