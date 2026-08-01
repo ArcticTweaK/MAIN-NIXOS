@@ -13,9 +13,25 @@
 #  Consumed at reinstall time. See README.md. After the reinstall, flip
 #  arctic.disk.useDisko to true and delete ./filesystems.nix.
 #
+#  The device is a PLACEHOLDER on purpose. This repo is public, and a disk
+#  by-id path contains the drive's serial number — a unique hardware
+#  identifier tied to a purchase and warranty record. Nothing exploitable,
+#  but nothing worth publishing either.
+#
+#  Pass the real device at install time instead, which disko-install accepts
+#  and which OVERRIDES this value:
+#
+#      ls -l /dev/disk/by-id/ | grep -v part      # find it
+#      disko-install ... --disk main /dev/disk/by-id/nvme-Samsung_SSD_...
+#
+#  That is strictly better than hardcoding: the one destructive operation in
+#  this whole config now requires you to name the target explicitly, rather
+#  than trusting a string committed months earlier.
+#
 #  Deliberately plain: no attribute is a "clever" default.
-#    by-id device   survives a wipe and cannot be reordered like /dev/nvme0n1
-#    1G ESP         room for several signed generations plus Secure Boot keys
+#    by-id at install  survives a wipe, and cannot be reordered the way
+#                      /dev/nvme0n1 can when a second drive is added
+#    1G ESP            room for several signed generations plus Secure Boot keys
 #    subvolumes     @root can be wiped for impermanence without touching @home
 #    zstd:3         near-free on a 12600K, and less write wear on the SSD
 #    swapfile       inside LUKS, so paged-out secrets are never on disk in
@@ -25,7 +41,10 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/nvme-Samsung_SSD_980_PRO_1TB_S5P2NL0T829360K";
+    # PLACEHOLDER — override at install time with `--disk main <device>`.
+    # Deliberately not a real path: if you ever run disko without the flag,
+    # it should fail loudly rather than format whatever this happens to name.
+    device = "/dev/disk/by-id/SET-ME-AT-INSTALL-TIME";
 
     content = {
       type = "gpt";

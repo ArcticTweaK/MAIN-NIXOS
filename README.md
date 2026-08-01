@@ -144,10 +144,16 @@ mkdir -p /tmp/keys && chmod 700 /tmp/keys
 cp /run/media/<usb>/keys.txt /tmp/keys/key.txt && chmod 600 /tmp/keys/key.txt
 nix-shell -p age --run 'age-keygen -y /tmp/keys/key.txt'   # must match .sops.yaml
 
+# Identify the target disk. hosts/arctic/disko.nix deliberately contains a
+# placeholder, NOT a real path — the serial is a hardware identifier and this
+# repo is public. --disk overrides it, which also means the one destructive
+# operation here requires naming the target explicitly.
+ls -l /dev/disk/by-id/ | grep -v part
+
 nix --experimental-features "nix-command flakes" \
   run 'github:nix-community/disko/latest#disko-install' -- \
   --flake 'github:<you>/nixos-config#arctic' \
-  --disk main /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_1TB_S5P2NL0T829360K \
+  --disk main /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_1TB_XXXXXXXXXXX \
   --extra-files /tmp/keys/key.txt /var/lib/sops-nix/key.txt \
   --write-efi-boot-entries
 ```
@@ -187,8 +193,10 @@ grep '^arctic:' /mnt/etc/shadow
       ls -l /mnt/var/lib/sops-nix/key.txt
       nixos-enter --root /mnt -- journalctl -b | grep -i sops
 
-# Belt and braces regardless. mutableUsers = true, so this survives every
-# future rebuild.
+# MANDATORY if you skipped managePasswords in phase 0. With no password
+# source the account is created "!" (locked) and there is no way in after
+# the reboot except booting the ISO again. Harmless to run either way —
+# mutableUsers = true means it survives every future rebuild.
 nixos-enter --root /mnt -- passwd arctic
 nixos-enter --root /mnt -- passwd root
 

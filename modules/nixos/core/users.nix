@@ -81,5 +81,27 @@ in
       isNormalUser = true;
       inherit (cfg.primary) description shell extraGroups hashedPassword hashedPasswordFile;
     };
+
+    # On the RUNNING machine this is harmless — mutableUsers = true means the
+    # password set by `passwd` is already in /etc/shadow and is left alone.
+    #
+    # On a FRESH INSTALL it is not harmless: the account is created with "!"
+    # and there is no way in. That failure appears only after the reboot, by
+    # which point fixing it means booting the ISO again.
+    warnings = lib.optional
+      (cfg.primary.hashedPassword == null && cfg.primary.hashedPasswordFile == null) ''
+      No password source for user "${cfg.primary.name}"
+      (both hashedPassword and hashedPasswordFile are null).
+
+      Existing installs are fine — `passwd` already set one and
+      users.mutableUsers = true preserves it.
+
+      But a FRESH INSTALL from this config will create a LOCKED account.
+      Before reinstalling, do one of:
+        - set arctic.security.secrets.managePasswords = true, with real
+          hashes in secrets/arctic.yaml (see README phase 0), or
+        - run `nixos-enter --root /mnt -- passwd ${cfg.primary.name}`
+          during install, BEFORE the first reboot (README phase 4).
+    '';
   };
 }
