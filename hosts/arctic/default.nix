@@ -13,7 +13,6 @@
   imports = [
     ./hardware.nix
     ./disko.nix # declares the TARGET layout; inert while useDisko = false
-    ./filesystems.nix # today's ext4 machine
   ];
 
   arctic = {
