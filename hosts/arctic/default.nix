@@ -110,6 +110,7 @@
       launchers.wine = true;
       peripherals.wooting = true;
       peripherals.pico = true;
+      peripherals.logitech = true; # Unifying receiver 046d:c547, see plasma.input.mice
     };
 
     # ── Network ─────────────────────────────────────────────────────────────
