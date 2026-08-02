@@ -21,10 +21,10 @@ in
     # user's extraGroups does not exist and membership means nothing.
     programs.ydotool.enable = cfg.automation;
 
-    environment.systemPackages = with pkgs; [
-      papirus-icon-theme
-    ]
-    ++ lib.optionals cfg.monitoring [
+    # papirus-icon-theme moved to modules/nixos/desktop/themes.nix — an icon
+    # theme belongs next to the module that selects it, not in "utilities".
+    environment.systemPackages = with pkgs;
+    lib.optionals cfg.monitoring [
       btop
       iotop
       hardinfo2

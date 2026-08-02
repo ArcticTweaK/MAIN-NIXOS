@@ -9,5 +9,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 {
-  # example-package = pkgs.callPackage ./example-package { };
+  # KDE themes this desktop runs that nixpkgs does not carry. Vendored rather
+  # than fetched — see each package's header for why.
+  sweet-ambar-blue = pkgs.callPackage ./sweet-ambar-blue { };
+  simpletux-splash = pkgs.callPackage ./simpletux-splash { };
 }

@@ -93,6 +93,28 @@
       plasma = true;
       xserver = true; # keeps an X11 fallback session at the SDDM greeter
       audio.lowLatency = true;
+
+      # Theme ASSETS. The selection lives in arctic.plasma.theme.* at the
+      # bottom of this file — a theme needs both halves or Plasma silently
+      # falls back to Breeze.
+      themes = {
+        icons = true; # Papirus (selected) + candy-icons
+        cursors = true; # WhiteSur-cursors (selected)
+
+        # The Sweet family as nixpkgs has it — base Sweet-Dark only. It does
+        # NOT contain the Ambar Blue variants this desktop actually uses, so
+        # this is on for the Kvantum styles and as the closest packaged
+        # fallback, not because it reproduces the current look.
+        sweet = true;
+
+        # Full WhiteSur KDE set, matching the WhiteSur cursors already in use.
+        whiteSur = true;
+
+        # The Ambar Blue set and the splash, committed to pkgs/ because
+        # nixpkgs does not have them. This is what the theme selection at the
+        # bottom of this file actually resolves against.
+        vendored = true;
+      };
     };
 
     gpu.nvidia = {
@@ -168,6 +190,14 @@
         hardenParams = true;
         blacklistModules = true;
         ipv6PrivacyExtensions = true;
+
+        # This box has been on Ethernet since it was built. Blacklisting the
+        # two radio drivers is what Plasma's airplane mode only appears to do:
+        # that toggle left hci0 powered, because it reaches Bluetooth through
+        # a bluetoothd this host does not run. Reversible without a rebuild —
+        # see the option docs. Note this makes manager.wifiMacAddress below
+        # inert; it is kept so the policy is still recorded for other hosts.
+        disableRadios = true;
 
         # 16 = sync only. NOT 0: with NVIDIA + Wayland, Alt+SysRq is the only
         # clean way out of a wedged compositor, and cutting power to btrfs is
@@ -320,24 +350,41 @@
     #  overrideConfig note in modules/home/desktop/plasma.nix.
     plasma = {
       theme = {
-        lookAndFeel = "org.kde.breezedark.desktop";
-        colorScheme = "BreezeDark";
-        plasmaStyle = "default";
+        # NO lookAndFeel. Deliberate, and the reason is the whole shape of this
+        # block: this desktop does not run one Global Theme, it runs a Sweet
+        # Ambar Blue mix assembled part by part. Declaring a Global Theme would
+        # re-apply it on top and undo the parts below — which is exactly what
+        # kept happening by hand (see EMPYREAN.md §10, "why your theme resets").
+        #
+        # ── PACKAGED (survives a reinstall) ─────────────────────────────────
+        iconTheme = "Papirus"; # <- desktop/themes.nix, themes.icons
+        soundTheme = "freedesktop"; # <- ships with Plasma
 
-        # Union is the Plasma 6.5+ default widget style, NOT a leftover.
-        widgetStyle = "Union";
+        # ── VENDORED (committed to this repo, so also reproducible) ─────────
+        #  nixpkgs has no Ambar Blue: `sweet-nova` ships only the base
+        #  Sweet-Dark set, and `sweet`/`ant-theme` were removed outright when
+        #  gtk-engine-murrine went with GTK 2. So these four live in pkgs/ and
+        #  install through desktop/themes.nix `themes.vendored`.
+        #
+        #  Each name below has to match a directory that package installs —
+        #  Plasma does not error on a missing theme, it falls back to Breeze.
+        colorScheme = "SweetAmbarBlue"; # <- pkgs/sweet-ambar-blue
+        plasmaStyle = "Sweet-Ambar-Blue"; # <- pkgs/sweet-ambar-blue
+        splashScreen = "SimpleTuxSplash-Plasma6"; # <- pkgs/simpletux-splash
 
-        # Package comes from modules/nixos/apps/utilities.nix. Naming a theme
-        # whose package is not installed silently falls back to Breeze.
-        iconTheme = "Papirus";
+        windowDecoration = {
+          # Aurorae is the SVG decoration engine; the theme name carries the
+          # `__aurorae__svg__` prefix KWin writes for engine-loaded themes.
+          # Lowercase `ambar` here vs capitalised in plasmaStyle is upstream's
+          # own inconsistency, taken from each metadata.desktop. Not a typo.
+          library = "org.kde.kwin.aurorae.v2";
+          theme = "__aurorae__svg__Sweet-ambar-blue"; # <- pkgs/sweet-ambar-blue
+        };
 
-        soundTheme = "freedesktop";
-
-        # Not set: windowDecoration and splashScreen. The Global Theme above
-        # already supplies both (Breeze decorations), and plasma-manager warns
-        # against declaring them alongside lookAndFeel — the theme is applied
-        # first and can clobber them. Declare them only if you drop
-        # lookAndFeel and assemble the parts yourself.
+        # Not set: widgetStyle (Application Style). kdeglobals currently has no
+        # such key, meaning Plasma's built-in default is in force. Both Sweet
+        # and WhiteSur ship Kvantum styles if you want to change that — turn on
+        # the family in desktop/themes.nix and name it here.
 
         # Per-screen wallpaper, indexed by Plasma SCREEN NUMBER (not connector).
         # Verified against this machine with `kscreen-doctor -o`:
@@ -357,7 +404,10 @@
       };
 
       cursor = {
-        theme = "breeze_cursors";
+        # Packaged: whitesur-cursors, via desktop/themes.nix `themes.cursors`.
+        # This one IS reproducible — the package name and the theme directory
+        # it installs (share/icons/WhiteSur-cursors) have to keep matching.
+        theme = "WhiteSur-cursors";
         size = 24;
       };
 

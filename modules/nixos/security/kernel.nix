@@ -10,6 +10,20 @@ in
     hardenParams = lib.mkEnableOption "hardened boot.kernelParams" // { default = true; };
     blacklistModules = lib.mkEnableOption "blacklisting rarely-used protocol/filesystem modules" // { default = true; };
 
+    disableRadios = lib.mkEnableOption ''
+      blacklisting the WiFi and Bluetooth drivers outright.
+
+      Off by default, unlike blacklistModules above: that list is safe
+      anywhere, this one is a statement about a specific machine. Correct for
+      a desktop that lives on Ethernet, wrong for anything that leaves the
+      desk — so it is opted into per host, never assumed.
+
+      This is what Plasma's airplane mode only looks like it does. That toggle
+      drives NetworkManager for WiFi and BlueZ for Bluetooth, so on a host with
+      no bluetoothd the Bluetooth half silently no-ops: `nmcli radio all` reads
+      disabled while `rfkill list` still shows hci0 unblocked and powered
+    '';
+
     sysrq = lib.mkOption {
       type = lib.types.int;
       default = 16;
@@ -203,6 +217,29 @@ in
       #   udf          needed to mount UDF optical media and some game ISOs
       #   thunderbolt  this Z690 board exposes USB4/TB4 headers; blacklisting
       #                the module silently kills those ports
+    })
+
+    # ── radios ─────────────────────────────────────────────────────────────
+    (lib.mkIf cfg.disableRadios {
+      boot.blacklistedKernelModules = [
+        "iwlwifi" # CNVi WiFi; iwlmvm is loaded by it and dies with it
+        "btusb" # the AX201's Bluetooth side, which sits on USB 8087:0026
+      ];
+
+      # Recovery does NOT need a rebuild. NixOS writes a plain `blacklist` line
+      # into /etc/modprobe.d/nixos.conf, which only stops udev autoloading — an
+      # explicit modprobe still works, so a phone hotspot is two commands away
+      # even from a TTY with no network:
+      #     sudo modprobe iwlwifi && nmcli radio wifi on
+      #
+      # USB tethering is unaffected either way. That is a cdc_ncm/rndis gadget,
+      # not a radio, and it never touches rfkill — so the common "I need mobile
+      # data" case does not require undoing any of this.
+
+      # NOT blacklisted, because neither is a radio:
+      #   hid-logitech-hidpp  the Unifying/Lightspeed receiver is proprietary
+      #                       2.4 GHz over its own dongle, not Bluetooth
+      #   snd-usb-audio       likewise for the Arctis Pro Wireless base station
     })
 
     # ── assertions ─────────────────────────────────────────────────────────

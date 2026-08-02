@@ -19,3 +19,6 @@ age-key*
 *.swp
 *~
 .DS_Store
+
+# KDE folder metadata — `manage` stages everything, keep this out
+.directory
