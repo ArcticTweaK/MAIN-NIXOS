@@ -241,13 +241,31 @@
       audit.enable = true; # now includes the auditd daemon
       clamav.enable = true; # updater + weekly scan, no resident daemon
 
-      # STAGED OFF. Turning this on replaces systemd-boot with lanzaboote and
-      # needs a one-time trip into firmware to enroll keys — see README.md
-      # step 6. Safe with the NVIDIA module on this system: nixpkgs' kernel
-      # has CONFIG_SECURITY_LOCKDOWN_LSM unset, so Secure Boot cannot engage
-      # the lockdown that blocks unsigned out-of-tree modules elsewhere.
+      # ON. This replaces systemd-boot with lanzaboote, which signs the kernel,
+      # initrd and stub with keys generated on this machine — so firmware
+      # refuses to boot anything not built here. It is what closes the
+      # evil-maid gap LUKS leaves open: /boot is unencrypted, so an attacker
+      # with physical access could otherwise swap in a kernel that captures the
+      # passphrase.
+      #
+      # Verified safe with the NVIDIA module on THIS running kernel (6.12.100):
+      #     zcat /proc/config.gz | grep -E 'LOCKDOWN|MODULE_SIG'
+      #     # CONFIG_MODULE_SIG is not set
+      #     # CONFIG_SECURITY_LOCKDOWN_LSM is not set
+      # With no lockdown LSM there is nothing for Secure Boot to trigger, so the
+      # unsigned out-of-tree module keeps loading. This is the failure everyone
+      # else hits and it cannot happen here.
+      #
+      # Enrollment still needs ONE trip into firmware — see README.md phase 6.
+      # Until that trip, autoProvision keeps allowUnsigned on, so the machine
+      # boots normally with Secure Boot still disabled and nothing is at risk.
+      #
+      # BACK UP /var/lib/sbctl once enrolled. It is not in git and not
+      # recoverable; losing it with Secure Boot enforcing means clearing the
+      # keys in firmware. Do NOT flash a BIOS update afterwards — that clears
+      # NVRAM and undoes the enrollment.
       secureboot = {
-        enable = false;
+        enable = true;
         autoProvision = true;
         includeMicrosoftKeys = true; # GPU option ROMs are signed by the MS CA
       };
