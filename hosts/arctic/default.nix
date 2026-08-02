@@ -256,10 +256,15 @@
           "tv.plex.PlexDesktop"
         ];
 
-        # Left off until you have confirmed nothing else installed by hand is
-        # still needed. Flipping it to true makes this list authoritative and
-        # DELETES anything unlisted, including its ~/.var/app data.
-        uninstallUnmanaged = false;
+        # On. Audited 2026-08-01: the installed set was exactly the four above,
+        # so taking authority here removed nothing. It now also prunes unused
+        # runtimes (the module ties uninstallUnused to this), which is the only
+        # thing that ever grows /var/lib/flatpak unattended.
+        #
+        # Consequence to keep in mind: `flatpak install` from a terminal is now
+        # temporary — the next rebuild reverts it, along with its ~/.var/app
+        # data. Add the app ID to the list above instead.
+        uninstallUnmanaged = true;
       };
 
       browsers.enable = true;
@@ -303,8 +308,121 @@
   };
 
   # ── home-manager: per-user overrides for this host ──────────────────────────
-  home-manager.users.arctic = {
-    arctic.dev.git.userEmail = "arctictweak@gmail.com";
-    arctic.terminal.kitty.fontSize = lib.mkDefault 19;
+  home-manager.users.arctic.arctic = {
+    dev.git.userEmail = "arctictweak@gmail.com";
+    terminal.kitty.fontSize = lib.mkDefault 19;
+
+    # ── KDE Plasma ────────────────────────────────────────────────────────────
+    #  Captured from the live desktop, so applying this is a no-op — it takes
+    #  ownership of settings that were already true rather than changing them.
+    #  Every key not named here still belongs to System Settings; see the
+    #  overrideConfig note in modules/home/desktop/plasma.nix.
+    plasma = {
+      theme = {
+        lookAndFeel = "org.kde.breezedark.desktop";
+        colorScheme = "BreezeDark";
+        plasmaStyle = "default";
+
+        # Union is the Plasma 6.5+ default widget style, NOT a leftover.
+        widgetStyle = "Union";
+
+        # Package comes from modules/nixos/apps/utilities.nix. Naming a theme
+        # whose package is not installed silently falls back to Breeze.
+        iconTheme = "Papirus";
+
+        soundTheme = "freedesktop";
+
+        # Not set: windowDecoration and splashScreen. The Global Theme above
+        # already supplies both (Breeze decorations), and plasma-manager warns
+        # against declaring them alongside lookAndFeel — the theme is applied
+        # first and can clobber them. Declare them only if you drop
+        # lookAndFeel and assemble the parts yourself.
+
+        # Per-screen wallpaper, indexed by Plasma SCREEN NUMBER (not connector).
+        # Verified against this machine with `kscreen-doctor -o`:
+        #
+        #   screen 0 = DP-3, priority 1, 2560x1440@240, rotation normal
+        #              -> the main monitor. basement.jpg
+        #   screen 1 = DP-4, priority 2, 2560x1440@165, rotation 8 (270°),
+        #              geometry 0,0 1440x2560 -> the vertical panel on the LEFT.
+        #              blackhole-abyss, whose 3838x7890 is natively portrait.
+        #
+        # If the wallpapers ever swap monitors the priorities changed — re-run
+        # kscreen-doctor and reorder this list rather than editing anything else.
+        wallpaper = [
+          ../../assets/wallpapers/basement.jpg
+          ../../assets/wallpapers/blackhole-abyss-wallpaper.jpg
+        ];
+      };
+
+      cursor = {
+        theme = "breeze_cursors";
+        size = 24;
+      };
+
+      fonts = {
+        family = "Noto Sans";
+        monospace = "JetBrainsMono Nerd Font"; # matches kitty + fonts.nix
+        size = 10;
+      };
+
+      input = {
+        mice = [
+          {
+            # A wireless Logitech: libinput sees the RECEIVER, so that is what
+            # the settings key is built from. Confirm after any dongle change:
+            #     grep '^\[Libinput' ~/.config/kcminputrc
+            name = "Logitech USB Receiver";
+            vendorId = "046d"; # 1133 decimal, as kcminputrc writes it
+            productId = "c547"; # 50503 decimal
+
+            sensitivity = 0.0; # dead centre of the System Settings slider
+
+            # Flat, i.e. no mouse acceleration: pointer distance stays a fixed
+            # multiple of mouse distance regardless of how fast you move. This
+            # is the setting that keeps aim consistent in games — do not change
+            # it to "default" without meaning to.
+            accelerationProfile = "none";
+          }
+        ];
+
+        # SDDM already does autoNumlock (modules/nixos/desktop/plasma.nix);
+        # this is the session's, and they want to agree.
+        keyboard.numlockOnStartup = "on";
+      };
+
+      behavior = {
+        # 0.75 = animations at 3/4 duration. Visible feedback kept, latency cut.
+        animationSpeed = 0.75;
+        doubleClickInterval = 200;
+      };
+
+      kwin = {
+        virtualDesktops = {
+          number = 1;
+          rows = 1;
+        };
+        tilingPadding = 4;
+
+        # Off. Alt+Tab and the Meta+N task manager bindings already do this,
+        # and it fires by accident during fast mouse movement in games.
+        effects.shakeCursor = false;
+      };
+
+      # This machine is a desktop that is either in use or off, and it is the
+      # LUKS passphrase that actually protects it at rest — an idle timer adds
+      # interruption without adding much.
+      screenLocker = {
+        autoLock = false;
+        lockOnResume = false;
+      };
+
+      extraSettings = {
+        # kdeglobals has no plasma-manager wrapper for these two, and they are
+        # what makes "Open Terminal Here" in Dolphin open kitty.
+        kdeglobals.General.TerminalApplication = "kitty";
+        kdeglobals.General.TerminalService = "kitty.desktop";
+      };
+    };
   };
 }

@@ -9,6 +9,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative KDE Plasma 6. Writes the same ~/.config/*rc keys that System
+    # Settings writes, from Nix. Inert until arctic.plasma.enable; see
+    # modules/home/desktop/plasma.nix.
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # Secrets. Encrypted files live in ./secrets and ARE committed; the age
     # private key that opens them never is. See README.md.
     sops-nix = {

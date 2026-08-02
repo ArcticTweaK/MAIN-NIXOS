@@ -20,13 +20,16 @@ lib/mkHost.nix         the one place a machine is assembled
 hosts/arctic/
   default.nix          THE MANIFEST — the only file that flips arctic.* switches
   hardware.nix         generate-config output, minus filesystems
-  filesystems.nix      today's ext4 layout   (used while useDisko = false)
-  disko.nix            target LUKS+btrfs     (used at reinstall)
+  disko.nix            LUKS+btrfs layout — owns the filesystems
 modules/nixos/         core desktop gaming network security virt apps disk
-modules/home/          shell dev terminal
+modules/home/          shell dev terminal desktop
 secrets/arctic.yaml    sops-encrypted, committed
 .sops.yaml             age recipients, public
+EMPYREAN.md            the manual — module system, conventions, recipes
 ```
+
+This file is the **runbook**: install, recover, verify. `EMPYREAN.md` is the
+**manual**: how the config is built and where to put the next thing you add.
 
 Every feature is a typed `arctic.*` option with a default. To change what this
 machine does, edit `hosts/arctic/default.nix` — nothing else. To add a second
@@ -211,8 +214,8 @@ ls -l /run/secrets-for-users/
 journalctl -fu flatpak-managed-install    # Sober et al. install themselves
 ```
 
-Then delete `hosts/arctic/filesystems.nix` and drop it from the imports — disko
-owns the filesystems now.
+(The pre-disko `filesystems.nix` is already gone from the repo — disko owns the
+filesystems.)
 
 ## Phase 6 — enroll Secure Boot
 

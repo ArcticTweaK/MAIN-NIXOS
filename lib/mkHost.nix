@@ -69,6 +69,11 @@ inputs.nixpkgs.lib.nixosSystem {
 
         sharedModules = [
           ../modules/home
+
+          # Third-party home-manager module. Like the NixOS ones above, inert
+          # until its options are set — programs.plasma.enable gates all of it.
+          inputs.plasma-manager.homeModules.plasma-manager
+
           { home.stateVersion = homeStateVersion; }
         ];
 

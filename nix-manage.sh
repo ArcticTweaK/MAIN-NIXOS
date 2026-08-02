@@ -23,7 +23,7 @@ NC='\033[0m'
 header() {
   clear
   echo -e "${BLUE}${BOLD}╔═══════════════════════════════════════════════╗${NC}"
-  echo -e "${BLUE}${BOLD}║   NIX-MANAGE  ·  config: ${FLAKE_NAME}              ║${NC}"
+  echo -e "${BLUE}${BOLD}║   NIX-MANAGE  ·  config: ${FLAKE_NAME}               ║${NC}"
   echo -e "${BLUE}${BOLD}╚═══════════════════════════════════════════════╝${NC}"
   echo -e "${DIM}  flake: ${FLAKE_PATH}${NC}\n"
 }

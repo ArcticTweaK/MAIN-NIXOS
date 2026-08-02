@@ -135,11 +135,9 @@ BEFORE YOU START — have on the USB stick:
   git clone https://github.com/ArcticTweaK/MAIN-NIXOS ~/nixos-config
   cd ~/nixos-config
 
-  Then DELETE the old ext4 layout, now dead:
-    rm hosts/arctic/filesystems.nix
-    # and remove the "./filesystems.nix" line from hosts/arctic/default.nix
+  (The pre-disko filesystems.nix is already gone from the repo — disko owns
+  the filesystems. Nothing to delete here.)
     sudo nixos-rebuild switch --flake .#arctic
-    git commit -am "arctic: drop the pre-disko ext4 layout" && git push
 
   Restore the age key to your user (for editing secrets). The desktop DOES
   auto-mount, so the USB will appear under /run/media/arctic/VENTOY:

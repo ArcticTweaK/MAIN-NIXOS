@@ -7,8 +7,11 @@ _:
 #  state from here, use the `osConfig` argument — never try to reach the other
 #  way, there is no supported path from home-manager back into NixOS.
 #
-#  Leaf names (shell / dev / terminal / desktop) are kept disjoint from the
-#  NixOS side so `config.arctic.X` is never ambiguous when reading a file.
+#  Option leaf names are kept disjoint from the NixOS side so `config.arctic.X`
+#  is never ambiguous when reading a file. Note this constrains the OPTION
+#  namespace, not the directory name: ./desktop holds the Plasma module, but
+#  its options live under `arctic.plasma` because the NixOS tree already owns
+#  `arctic.desktop`.
 # ─────────────────────────────────────────────────────────────────────────────
 
 {
@@ -16,6 +19,7 @@ _:
     ./shell
     ./dev
     ./terminal
+    ./desktop
     ./packages.nix
   ];
 }
